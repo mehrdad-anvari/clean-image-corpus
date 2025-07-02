@@ -1,8 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  output: 'export',
+  output: 'export', 
+  basePath: '/clean-image-corpus',
+  assetPrefix: '/clean-image-corpus/', 
 };
 
 export default nextConfig;
