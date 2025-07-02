@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { loadOrCreateIndexedDBBackupFile, insertNewImagesIntoDatabase, saveIndexedDBToFile } from '@/lib/database';
+import { loadOrCreateIndexedDBBackupFile, insertNewImagesIntoDatabase, saveIndexedDBToFile, removeExistingIndexedDB } from '@/lib/database';
 import { useProject } from '@/context/projectContext';
 import { loadSettings } from '@/lib/saveSettings';
 import { useAppDispatch } from './hooks';
@@ -18,6 +18,13 @@ export default function Home() {
   const dispatch = useAppDispatch()
 
   async function handleDirectoryPick() {
+    try {
+      await removeExistingIndexedDB()
+      console.log("Database removed successfully.")
+    } catch (err) {
+      console.log('Error in removing database', err)
+    }
+
     try {
       const rootHandle = await window.showDirectoryPicker();
       setRootDirHandle(rootHandle);

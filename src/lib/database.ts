@@ -16,6 +16,16 @@ const fileToImage = (file: File): Promise<HTMLImageElement> =>
 
 const IMAGE_STORE = 'images';
 
+export async function removeExistingIndexedDB() {
+  const DB_NAME = 'ImagesDB';
+
+  await new Promise((resolve, reject) => {
+    const request = indexedDB.deleteDatabase(DB_NAME)
+
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
 
 export async function loadOrCreateIndexedDBBackupFile(rootDirHandle: FileSystemDirectoryHandle): Promise<IDBDatabase> {
   const DB_NAME = 'ImagesDB';
