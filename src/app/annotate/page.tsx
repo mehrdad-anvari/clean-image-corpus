@@ -15,6 +15,7 @@ import { RootState } from "@/app/store";
 import { loadAnnotations, resetCanvasState, resetHistory } from "@/features/tools/canvas";
 import { addRectClass, AnnotationSettingsState, deleteRectClass } from "@/features/tools/settings";
 import { saveSettings } from "@/lib/saveSettings";
+import { saveAnnotationsYOLO } from "@/lib/export";
 
 const getRandomColor = (): [number, number, number] => {
     const r = Math.floor(Math.random() * 256); // Random red value
@@ -243,6 +244,15 @@ export default function AnnotatePage() {
         setImagesLen(newImagesLen);
     }
 
+    async function handleExport() {
+        try {
+            if (rootDirHandle)
+                await saveAnnotationsYOLO(rootDirHandle)
+        } catch (error) {
+            console.log('Error in exporting annotation to yolo format, error: ', error)
+        }
+    }
+    
     async function moveCurrentIndex(
         amount: number,
         length: number,
@@ -301,6 +311,7 @@ export default function AnnotatePage() {
                     onLoadImages={handleLoadImages}
                     onSync={handleSync}
                     onSettings={toggleModal}
+                    onExport={handleExport}
                 />
             </header>
 
