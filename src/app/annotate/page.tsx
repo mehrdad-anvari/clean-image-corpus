@@ -16,6 +16,7 @@ import { loadAnnotations, resetCanvasState, resetHistory } from "@/features/tool
 import { addRectClass, AnnotationSettingsState, deleteRectClass } from "@/features/tools/settings";
 import { saveSettings } from "@/lib/saveSettings";
 import { saveAnnotationsYOLO } from "@/lib/export";
+import ToolSelector from "@/components/toolSelector";
 
 const getRandomColor = (): [number, number, number] => {
     const r = Math.floor(Math.random() * 256); // Random red value
@@ -235,7 +236,7 @@ export default function AnnotatePage() {
         setImagesLen(newImagesLen);
         await moveCurrentIndex(0, newImagesLen, db, imagesDirHandle, 0);
     }
-    
+
     useEffect(() => {
         try {
             console.log('run')
@@ -244,7 +245,7 @@ export default function AnnotatePage() {
             console.log('error in loading images. error:', error)
         }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     async function handleSync() {
@@ -341,11 +342,16 @@ export default function AnnotatePage() {
                 </aside>
 
                 {/* Canvas Area */}
-                <main className="flex-1 flex justify-center items-center h-full bg-zinc-950 p-4 overflow-hidden">
-                    <div className="max-w-full max-h-full">
+                <main className="flex-1 relative flex justify-center items-start h-full bg-zinc-950 p-4 overflow-hidden">
+                    {/* Tool Buttons */}
+                    <ToolSelector />
+
+                    {/* Canvas Area */}
+                    <div className="max-w-full max-h-full mt-12">
                         <CanvasArea imageSrc={cards[2][1]} />
                     </div>
                 </main>
+
 
                 {/* Right Sidebar: Annotation List */}
                 <aside className="h-full w-full md:w-64 bg-zinc-900 border-l border-zinc-700">
