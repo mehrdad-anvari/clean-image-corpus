@@ -20,6 +20,7 @@ export interface CanvasState {
     lastIndex: number,
     historyLastIndex: number,
     zoom: number,
+    isDrawing: boolean
 }
 
 const initialState: CanvasState = {
@@ -37,6 +38,7 @@ const initialState: CanvasState = {
     lastIndex: 0,
     historyLastIndex: 0,
     zoom: 800,
+    isDrawing: false
 }
 
 export const canvasSlice = createSlice({
@@ -100,7 +102,7 @@ export const canvasSlice = createSlice({
                 y2: p.y,
             }
         },
-        updateRect: (state, action: PayloadAction<{updatedRect: RectangleObject, Index: number}>) => {
+        updateRect: (state, action: PayloadAction<{ updatedRect: RectangleObject, Index: number }>) => {
             state.annotations[action.payload.Index].object = action.payload.updatedRect
         },
         updateHoveringAnnotation: (state, action: PayloadAction<Point>) => {
@@ -115,6 +117,7 @@ export const canvasSlice = createSlice({
             if (state.selectedAnnotation > -1) {
                 const nearestVertex = Rectangle.findNearestVertex(state.annotations[state.selectedAnnotation]['object'], p.x, p.y);
                 if (nearestVertex != null) { state.hoveringVertex = nearestVertex }
+                else { state.hoveringVertex = -1 }
             }
         },
         selectAnnotationFromHover: (state) => {
@@ -154,6 +157,9 @@ export const canvasSlice = createSlice({
         removeAnnotation: (state, action: PayloadAction<number>) => {
             delete state.annotations[action.payload]
         },
+        setIsDrawing: (state, action: PayloadAction<boolean>) => {
+            state.isDrawing = action.payload
+        },
         resetCanvasState: () => initialState
     }
 })
@@ -162,6 +168,6 @@ export const { startDrawRect, updateDrawRect, updateHoveringAnnotation,
     updateHoveringVertex, goBackwardHistory, goForwardHistory, selectAnnotationFromHover,
     selectVertexFromHover, setSelectedTool, moveVertex, resetCanvasState, resetSelectedAnnotation,
     resetSelectedVertex, saveAnnotationsHistory, setCanvasSize, setSelectedClassID, loadAnnotations,
-    resetHistory, setSelectedAnnotation, removeAnnotation, updateRect } = canvasSlice.actions
+    resetHistory, setSelectedAnnotation, removeAnnotation, updateRect, setIsDrawing } = canvasSlice.actions
 
 export default canvasSlice.reducer

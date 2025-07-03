@@ -2,7 +2,7 @@ import { getNormalizedCoords } from "@/lib/utils";
 import { Dispatch, Action } from 'redux';
 import {
     CanvasState, selectAnnotationFromHover, setSelectedTool,
-    startDrawRect, updateHoveringAnnotation, updateHoveringVertex
+    updateHoveringAnnotation, updateHoveringVertex
 } from "@/features/tools/canvas";
 
 
@@ -16,11 +16,12 @@ export function selectTool(
             if (canvasState.hoveringAnnotation != -1) {
                 dispatch(setSelectedTool('EDIT_RECT'));
                 dispatch(selectAnnotationFromHover());
-            } else {
-                const newCoords = getNormalizedCoords(event);
-                dispatch(setSelectedTool('DRAW_RECT'));
-                dispatch(startDrawRect({ classID: canvasState.selectedClassID, mousePosition: newCoords }))
             }
+            // else {
+            //     const newCoords = getNormalizedCoords(event);
+            //     dispatch(setSelectedTool('DRAW_RECT'));
+            //     dispatch(startDrawRect({ classID: canvasState.selectedClassID, mousePosition: newCoords }))
+            // }
             break;
 
         case 'mouseup':

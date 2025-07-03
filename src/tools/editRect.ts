@@ -23,6 +23,7 @@ export function editRectTool(
                 } else {
                     dispatch(setSelectedTool('SELECT'))
                     dispatch(resetSelectedAnnotation())
+                    dispatch(resetSelectedVertex())
                 }
             }
             break;
@@ -31,7 +32,6 @@ export function editRectTool(
             if (canvasState.selectedVertex != -1) {
                 dispatch(saveAnnotationsHistory())
                 dispatch(resetSelectedVertex())
-                dispatch(setSelectedTool('SELECT'))
             }
             break;
 

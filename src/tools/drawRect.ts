@@ -1,5 +1,5 @@
 import { getNormalizedCoords } from "@/lib/utils";
-import { startDrawRect, updateDrawRect, saveAnnotationsHistory, setSelectedTool } from "@/features/tools/canvas";
+import { startDrawRect, updateDrawRect, saveAnnotationsHistory, setIsDrawing } from "@/features/tools/canvas";
 import { Dispatch, Action } from 'redux';
 import { CanvasState } from "@/features/tools/canvas";
 
@@ -12,17 +12,19 @@ export function drawRectTool(
         case 'mousedown':
             const startPoint = getNormalizedCoords(event);
             dispatch(startDrawRect({ classID: canvasState.selectedClassID, mousePosition: startPoint }))
+            dispatch(setIsDrawing(true))
             break;
 
         case 'mouseup':
             dispatch(saveAnnotationsHistory())
-            dispatch(setSelectedTool('SELECT'))
+            dispatch(setIsDrawing(false))
             break;
-            
+
         case 'mousemove':
-            const newCoords = getNormalizedCoords(event);
-            // dispatch(updateMousePosition(newCoords))
-            dispatch(updateDrawRect(newCoords))
+            if (canvasState.isDrawing) {
+                const newCoords = getNormalizedCoords(event);
+                dispatch(updateDrawRect(newCoords))
+            }
             break;
     }
 }
