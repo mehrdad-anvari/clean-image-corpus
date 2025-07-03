@@ -1,5 +1,5 @@
 'use client';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ImageSidebar from "@/components/imageSidebar";
 // import AnnotationList from "@/components/annotationList";
 import CanvasArea from "@/components/canvasArea";
@@ -235,6 +235,17 @@ export default function AnnotatePage() {
         setImagesLen(newImagesLen);
         await moveCurrentIndex(0, newImagesLen, db, imagesDirHandle, 0);
     }
+    
+    useEffect(() => {
+        try {
+            console.log('run')
+            handleLoadImages()
+        } catch (error) {
+            console.log('error in loading images. error:', error)
+        }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     async function handleSync() {
         if (!imagesDirHandle || !rootDirHandle || !db) return;
@@ -252,7 +263,7 @@ export default function AnnotatePage() {
             console.log('Error in exporting annotation to yolo format, error: ', error)
         }
     }
-    
+
     async function moveCurrentIndex(
         amount: number,
         length: number,
