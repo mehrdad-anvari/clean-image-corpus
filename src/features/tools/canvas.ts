@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import Rectangle from "@/annotations/rectangle";
-import { AnnotationObject, Point, RectangleObject } from "@/interfaces";
+import { AnnotationObject, Point, PointObject, RectangleObject } from "@/interfaces";
 
 interface AnnotationsSnapshot { [key: number]: { object: AnnotationObject } };
 
@@ -66,6 +66,18 @@ export const canvasSlice = createSlice({
                 y2: p.y,
             }
             state.annotations[state.lastIndex] = { object: newRect }
+            state.lastIndex += 1
+        },
+        drawPoint: (state, action: PayloadAction<{ classID: number, mousePosition: Point }>) => {
+            const classID = action.payload.classID
+            const p = action.payload.mousePosition
+            const newPoint: PointObject = {
+                type: 'keypoint',
+                class_id: classID,
+                x: p.x,
+                y: p.y,
+            }
+            state.annotations[state.lastIndex] = { object: newPoint }
             state.lastIndex += 1
         },
         resetHistory: (state) => {
@@ -213,6 +225,7 @@ export const { startDrawRect, updateDrawRect, updateHoveringAnnotation,
     updateHoveringVertex, goBackwardHistory, goForwardHistory, selectAnnotationFromHover,
     selectVertexFromHover, setSelectedTool, moveVertex, resetCanvasState, resetSelectedAnnotation,
     resetSelectedVertex, saveAnnotationsHistory, setCanvasSize, setSelectedClassID, loadAnnotations,
-    resetHistory, setSelectedAnnotation, removeAnnotation, updateRect, setIsDrawing } = canvasSlice.actions
+    resetHistory, setSelectedAnnotation, removeAnnotation, updateRect, setIsDrawing,
+    drawPoint } = canvasSlice.actions
 
 export default canvasSlice.reducer

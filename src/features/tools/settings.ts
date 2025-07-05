@@ -4,11 +4,15 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 type classAttributes = { name: string, color: [number, number, number] }
 export interface AnnotationSettingsState {
     rectClasses: { [key: number]: classAttributes },
+    pointClasses: { [key: number]: classAttributes },
     rectMinEdgeSize: number,
 }
 
 const initialState: AnnotationSettingsState = {
     rectClasses: {
+        [0]: { name: 'default', color: [255, 255, 255] }
+    },
+    pointClasses: {
         [0]: { name: 'default', color: [255, 255, 255] }
     },
     rectMinEdgeSize: 0.02
@@ -21,8 +25,14 @@ export const annotationSettingsSlice = createSlice({
         addRectClass: (state, action: PayloadAction<{ id: number, attrs: classAttributes }>) => {
             state.rectClasses[action.payload.id] = action.payload.attrs; // Use object syntax
         },
+        addPointClass: (state, action: PayloadAction<{ id: number, attrs: classAttributes }>) => {
+            state.pointClasses[action.payload.id] = action.payload.attrs; // Use object syntax
+        },
         deleteRectClass: (state, action: PayloadAction<number>) => {
             delete state.rectClasses[action.payload]; // Use delete operator
+        },
+        deletePointClass: (state, action: PayloadAction<number>) => {
+            delete state.pointClasses[action.payload]; // Use delete operator
         },
         setSettings: (state, action: PayloadAction<AnnotationSettingsState>) => {
             return { ...state, ...action.payload }

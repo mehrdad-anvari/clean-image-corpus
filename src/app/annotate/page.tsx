@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState } from "react";
 import ImageSidebar from "@/components/imageSidebar";
-// import AnnotationList from "@/components/annotationList";
 import CanvasArea from "@/components/canvasArea";
 import AnnotationList from "@/components/annotationList";
 
@@ -11,7 +10,7 @@ import { saveIndexedDBToFile, getImagesUsingDatabase, countImages, syncDatabaseW
 import { useProject } from "@/context/projectContext";
 import { useAppDispatch } from "@/app/hooks";
 import { useSelector } from "react-redux";
-import { RootState } from "@/app/store";
+import { RootState, store } from "@/app/store";
 import { loadAnnotations, resetCanvasState, resetHistory } from "@/features/tools/canvas";
 import { addRectClass, AnnotationSettingsState, deleteRectClass } from "@/features/tools/settings";
 import { saveSettings } from "@/lib/saveSettings";
@@ -160,7 +159,6 @@ const SettingsModal = ({ isOpen, onClose, settings }: SettingsModalProps) => {
 
 export default function AnnotatePage() {
     const dispatch = useAppDispatch()
-    const canvasState = useSelector((state: RootState) => state.canvas)
     const settingsState = useSelector((state: RootState) => state.settings)
     const { db, imagesDirHandle, rootDirHandle, annotationsDirHandle } = useProject();
     const emptyCard: indexedImage = [null, null, null];
@@ -192,9 +190,12 @@ export default function AnnotatePage() {
         const fileName = replaceLastExtensionWithJson(record.name);
 
         const annotationObjectsList = [];
-        for (let i = 0; i < canvasState.lastIndex; i++) {
-            if (canvasState.annotations[i] == undefined) { continue; }
-            const annotationObject = canvasState.annotations[i].object;
+        const mystore =  store.getState();
+        const annotations = mystore.canvas.annotations;
+        const lastIndex = mystore.canvas.lastIndex
+        for (let i = 0; i < lastIndex; i++) {
+            if (annotations[i] == undefined) { continue; }
+            const annotationObject = annotations[i].object;
             annotationObjectsList.push(annotationObject);
         }
         const annotationFileObject = { name: fileName, annotations: annotationObjectsList, labels: [] };

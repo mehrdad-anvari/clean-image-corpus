@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { AnnotationObject, RectangleObject } from "@/interfaces";
+import { AnnotationObject } from "@/interfaces";
 import { useAppDispatch } from "@/app/hooks";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
@@ -8,14 +8,16 @@ import { removeAnnotation, saveAnnotationsHistory, setSelectedAnnotation, setSel
 export default function AnnotationList() {
   const dispatch = useAppDispatch();
   const selectedIndex = useSelector((state: RootState) => state.canvas.selectedAnnotation)
-  const annotations = useSelector((state: RootState) => state.canvas.annotations)
+  const annotationsHistory = useSelector((state: RootState) => state.canvas.annotationsHistory)
+  const historyIndex = useSelector((state: RootState) => state.canvas.historyIndex)
+  const annotations = annotationsHistory[historyIndex].annotations
   const settings = useSelector((state: RootState) => state.settings)
   const entries = Object.entries(annotations);
   let selectedObject = selectedIndex !== -1 ? annotations[selectedIndex]?.object : null;
   const [editValues, setEditValues] = useState<AnnotationObject | null>(
     selectedObject ? { ...selectedObject } : null
   );
-
+  console.log('render')
   useEffect(() => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     selectedObject = selectedIndex !== -1 ? annotations[selectedIndex]?.object : null;
@@ -27,7 +29,7 @@ export default function AnnotationList() {
     setEditValues({ ...annotations[id].object });
   };
 
-  const handleChange = (key: keyof RectangleObject, value: number) => {
+  const handleChange = (key: string, value: number) => {
     if (!editValues) return;
     setEditValues({ ...editValues, [key]: value });
   };
@@ -41,6 +43,8 @@ export default function AnnotationList() {
             dispatch(setSelectedClassID(editValues.class_id))
             dispatch(saveAnnotationsHistory())
           }
+          break;
+        case 'keypoint':
           break;
       }
     }

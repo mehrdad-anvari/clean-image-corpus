@@ -1,3 +1,4 @@
+import Point from "@/annotations/point";
 import Rectangle from "@/annotations/rectangle";
 import { CanvasState } from "@/features/tools/canvas";
 import { AnnotationSettingsState } from "@/features/tools/settings";
@@ -17,21 +18,31 @@ export function renderCanvas(canvas: HTMLCanvasElement, imageSrc: string, canvas
   // const lastIndex = canvasState.lastIndex
   for (const [index, annotation] of entries) {
     const i = Number(index)
-    const rect = annotation.object
+    const annotationObj = annotation.object
     const color = settings.rectClasses[annotation.object.class_id].color
-    if (rect) {
+    if (annotationObj) {
       if (i === canvasState.selectedAnnotation) {
         highlighted_vertex = canvasState.hoveringVertex
       } else {
         highlighted_vertex = null
       }
-      if (canvasState.selectedTool == 'DRAW_RECT') {
-        Rectangle.draw(rect, canvas, i === canvasState.selectedAnnotation, null, color);
-      } else if (canvasState.selectedTool == 'SELECT') {
-        Rectangle.draw(rect, canvas, (i === canvasState.hoveringAnnotation) || (i === canvasState.selectedAnnotation), null, color);
-      } else {
-        Rectangle.draw(rect, canvas, (i === canvasState.hoveringAnnotation) || (i === canvasState.selectedAnnotation), highlighted_vertex, color);
+      switch (annotationObj.type) {
+        case 'bbox':
+          if (canvasState.selectedTool == 'DRAW_RECT' || canvasState.selectedTool == 'SELECT') {
+            Rectangle.draw(annotationObj, canvas, i === canvasState.selectedAnnotation, null, color);
+          } else {
+            Rectangle.draw(annotationObj, canvas, (i === canvasState.hoveringAnnotation) || (i === canvasState.selectedAnnotation), highlighted_vertex, color);
+          }
+          break;
+        case 'keypoint':
+          if (canvasState.selectedTool == 'DRAW_POINT' || canvasState.selectedTool == 'SELECT') {
+            Point.draw(annotationObj, canvas, i === canvasState.selectedAnnotation,  color);
+          } else {
+            Point.draw(annotationObj, canvas, (i === canvasState.hoveringAnnotation) || (i === canvasState.selectedAnnotation), color);
+          }
+          break;
       }
+      
     }
   }
 };
