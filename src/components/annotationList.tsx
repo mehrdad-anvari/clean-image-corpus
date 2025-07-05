@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { RectangleObject } from "@/interfaces";
+import { AnnotationObject, RectangleObject } from "@/interfaces";
 import { useAppDispatch } from "@/app/hooks";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
@@ -12,7 +12,7 @@ export default function AnnotationList() {
   const settings = useSelector((state: RootState) => state.settings)
   const entries = Object.entries(annotations);
   let selectedObject = selectedIndex !== -1 ? annotations[selectedIndex]?.object : null;
-  const [editValues, setEditValues] = useState<RectangleObject | null>(
+  const [editValues, setEditValues] = useState<AnnotationObject | null>(
     selectedObject ? { ...selectedObject } : null
   );
 
@@ -34,12 +34,14 @@ export default function AnnotationList() {
 
   const handleSave = () => {
     if (selectedIndex !== null && editValues) {
-      if (settings.rectClasses[editValues.class_id]) {
-        dispatch(updateRect({ updatedRect: editValues, Index: selectedIndex }))
-        dispatch(setSelectedClassID(editValues.class_id))
-        dispatch(saveAnnotationsHistory())
-      } else {
-
+      switch (editValues.type) {
+        case 'bbox':
+          if (settings.rectClasses[editValues.class_id]) {
+            dispatch(updateRect({ updatedRect: editValues, Index: selectedIndex }))
+            dispatch(setSelectedClassID(editValues.class_id))
+            dispatch(saveAnnotationsHistory())
+          }
+          break;
       }
     }
   };
@@ -96,15 +98,18 @@ export default function AnnotationList() {
         </div>
         {selectedObject && editValues && (
           <div className="p-4 flex flex-col gap-2 text-xs bg-zinc-900">
-            {(["class_id", "x1", "y1", "x2", "y2"] as (keyof RectangleObject)[]).map((key) => (
+            {(Object.keys(editValues) as (keyof typeof editValues)[]).map((key) => (
               <label key={key} className="flex justify-between items-center gap-2">
                 <span className="text-zinc-400">{key}</span>
-                <input
+                {(key == "type") ? <span
+                className="bg-zinc-800 text-zinc-100 px-2 py-1 text-left w-24 ">
+                  {editValues.type}
+                </span> : <input
                   type="number"
                   value={editValues[key]}
                   onChange={(e) => handleChange(key, parseFloat(e.target.value))}
-                  className="bg-zinc-800 text-zinc-100 px-2 py-1 text-right w-24 border border-zinc-600 focus:outline-none focus:ring focus:ring-blue-500"
-                />
+                  className="bg-zinc-800 text-zinc-100 px-2 py-1 text-left w-24 border border-zinc-600 focus:outline-none focus:ring focus:ring-blue-500"
+                />}
               </label>
             ))}
             <button

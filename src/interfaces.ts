@@ -19,13 +19,51 @@ export interface Vertex {
   y: number;
 }
 
-export interface RectangleObject {
+export interface PointObject {
+  type: 'keypoint',
+  class_id: number,
+  x: number,
+  y: number
+}
+
+export interface LineObject {
+  type: 'line',
   class_id: number,
   x1: number,
   y1: number,
   x2: number,
   y2: number,
 }
+
+export interface RectangleObject {
+  type: 'bbox',
+  class_id: number,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+}
+
+export interface OrientedRectangleObject {
+  type: 'obb',
+  class_id: number,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  x3: number,
+  y3: number,
+  x4: number,
+  y4: number,
+}
+
+export interface PolygonObject {
+  type: 'polygon',
+  class_id: number,
+  shell: Vertex[],
+}
+
+export type AnnotationObject = PointObject | LineObject | RectangleObject | OrientedRectangleObject | PolygonObject;
 
 export type SetCanvasContext = React.Dispatch<React.SetStateAction<CanvasContextState>>
 

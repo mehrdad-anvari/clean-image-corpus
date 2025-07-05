@@ -1,16 +1,16 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import Rectangle from "@/annotations/rectangle";
-import { Point, RectangleObject } from "@/interfaces";
+import { AnnotationObject, Point, RectangleObject } from "@/interfaces";
 
-interface AnnotationsSnapshot { [key: number]: { object: RectangleObject } };
+interface AnnotationsSnapshot { [key: number]: { object: AnnotationObject } };
 
 export interface CanvasState {
     selectedAnnotation: number,
     selectedVertex: number,
     hoveringAnnotation: number,
     hoveringVertex: number,
-    annotations: { [key: number]: { object: RectangleObject } },
+    annotations: { [key: number]: { object: AnnotationObject } },
     annotationsHistory: { [key: number]: { annotations: AnnotationsSnapshot, length: number } },
     historyIndex: number,
     selectedTool: string,
@@ -57,7 +57,8 @@ export const canvasSlice = createSlice({
         startDrawRect: (state, action: PayloadAction<{ classID: number, mousePosition: Point }>) => {
             const classID = action.payload.classID
             const p = action.payload.mousePosition
-            const newRect = {
+            const newRect: RectangleObject = {
+                type: 'bbox',
                 class_id: classID,
                 x1: p.x,
                 y1: p.y,
@@ -93,8 +94,10 @@ export const canvasSlice = createSlice({
         },
         updateDrawRect: (state, action: PayloadAction<Point>) => {
             const bbox = state.annotations[state.lastIndex - 1].object
+            if (bbox.type != 'bbox') return
             const p = action.payload
             state.annotations[state.lastIndex - 1].object = {
+                type: 'bbox',
                 class_id: bbox.class_id,
                 x1: bbox.x1,
                 y1: bbox.y1,
@@ -109,15 +112,43 @@ export const canvasSlice = createSlice({
             state.hoveringAnnotation = -1;
             const p = action.payload
             for (const [index, annotation] of Object.entries(state.annotations)) {
-                if (Rectangle.containPoint(annotation['object'], p.x, p.y)) { state.hoveringAnnotation = Number(index); break }
+                switch (annotation['object'].type) {
+                    case 'polygon':
+                        break
+                    case 'obb':
+                        break
+                    case 'bbox':
+                        if (Rectangle.containPoint(annotation['object'], p.x, p.y)) {
+                            state.hoveringAnnotation = Number(index);
+                        }
+                        break;
+                    case 'line':
+                        break
+                    case 'keypoint':
+                        break
+                }
+                if (state.hoveringAnnotation != -1) break
             }
         },
         updateHoveringVertex: (state, action: PayloadAction<Point>) => {
             const p = action.payload;
             if (state.selectedAnnotation > -1) {
-                const nearestVertex = Rectangle.findNearestVertex(state.annotations[state.selectedAnnotation]['object'], p.x, p.y);
-                if (nearestVertex != null) { state.hoveringVertex = nearestVertex }
-                else { state.hoveringVertex = -1 }
+                const selectedAnnotationObj = state.annotations[state.selectedAnnotation]['object']
+                switch (selectedAnnotationObj.type) {
+                    case 'polygon':
+                        break
+                    case 'obb':
+                        break
+                    case 'bbox':
+                        const nearestVertex = Rectangle.findNearestVertex(selectedAnnotationObj, p.x, p.y);
+                        if (nearestVertex != null) { state.hoveringVertex = nearestVertex }
+                        else { state.hoveringVertex = -1 }
+                        break;
+                    case 'line':
+                        break
+                    case 'keypoint':
+                        break
+                }
             }
         },
         selectAnnotationFromHover: (state) => {
@@ -138,10 +169,24 @@ export const canvasSlice = createSlice({
         moveVertex: (state, action: PayloadAction<Point>) => {
             const p = action.payload
             if (state.selectedAnnotation > -1 && state.selectedVertex > -1) {
-                const newRect = Rectangle.moveVertex(state.annotations[state.selectedAnnotation]['object'], p.x, p.y, state.selectedVertex)
-                if (newRect != undefined) {
-                    state.annotations[state.selectedAnnotation]['object'] = newRect
+                const selectedAnnotationObj = state.annotations[state.selectedAnnotation]['object']
+                switch (selectedAnnotationObj.type) {
+                    case 'polygon':
+                        break
+                    case 'obb':
+                        break
+                    case 'bbox':
+                        const newRect = Rectangle.moveVertex(selectedAnnotationObj, p.x, p.y, state.selectedVertex)
+                        if (newRect != undefined) {
+                            state.annotations[state.selectedAnnotation]['object'] = newRect
+                        }
+                        break;
+                    case 'line':
+                        break
+                    case 'keypoint':
+                        break
                 }
+
             }
         },
         setSelectedTool: (state, action: PayloadAction<string>) => {
