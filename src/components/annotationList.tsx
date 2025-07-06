@@ -1,32 +1,36 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { AnnotationObject } from "@/interfaces";
 import { useAppDispatch } from "@/app/hooks";
-import { useSelector } from "react-redux";
+import { useSelector, shallowEqual } from "react-redux";
 import { RootState } from "@/app/store";
 import { removeAnnotation, saveAnnotationsHistory, setSelectedAnnotation, setSelectedClassID, updateRect } from "@/features/tools/canvas";
 
 export default function AnnotationList() {
   const dispatch = useAppDispatch();
-  const selectedIndex = useSelector((state: RootState) => state.canvas.selectedAnnotation)
-  const annotationsHistory = useSelector((state: RootState) => state.canvas.annotationsHistory)
-  const historyIndex = useSelector((state: RootState) => state.canvas.historyIndex)
+  const selectedIndex = useSelector((state: RootState) => state.canvas.selectedAnnotation, shallowEqual)
+  const annotationsHistory = useSelector((state: RootState) => state.canvas.annotationsHistory, shallowEqual)
+  const historyIndex = useSelector((state: RootState) => state.canvas.historyIndex, shallowEqual)
+  const settings = useSelector((state: RootState) => state.settings, shallowEqual)
+
   const annotations = annotationsHistory[historyIndex].annotations
-  const settings = useSelector((state: RootState) => state.settings)
-  const entries = Object.entries(annotations);
-  let selectedObject = selectedIndex !== -1 ? annotations[selectedIndex]?.object : null;
+  const entries = useMemo(() => Object.entries(annotations), [annotations]);
+  const selectedObject = (selectedIndex !== -1 ? annotations[selectedIndex]?.object : null)
+
   const [editValues, setEditValues] = useState<AnnotationObject | null>(
     selectedObject ? { ...selectedObject } : null
   );
-  console.log('render')
+
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    selectedObject = selectedIndex !== -1 ? annotations[selectedIndex]?.object : null;
-    setEditValues(selectedObject)
-  }, [selectedIndex, annotations])
+    if (selectedObject)
+      setEditValues({ ...selectedObject })
+  }, [selectedObject])
+  
+  console.log('render')
 
   const handleSelect = (id: number) => {
     dispatch(setSelectedAnnotation(id))
-    setEditValues({ ...annotations[id].object });
+    if (selectedObject)
+      setEditValues({ ...selectedObject });
   };
 
   const handleChange = (key: string, value: number) => {
@@ -106,7 +110,7 @@ export default function AnnotationList() {
               <label key={key} className="flex justify-between items-center gap-2">
                 <span className="text-zinc-400">{key}</span>
                 {(key == "type") ? <span
-                className="bg-zinc-800 text-zinc-100 px-2 py-1 text-left w-24 ">
+                  className="bg-zinc-800 text-zinc-100 px-2 py-1 text-left w-24 ">
                   {editValues.type}
                 </span> : <input
                   type="number"
