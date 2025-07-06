@@ -11,13 +11,8 @@ import { useAppDispatch } from "@/app/hooks";
 import { useState } from "react";
 
 const drawSubtools = [
-  { id: "DRAW_RECT",  icon: <Square size={16} /> },
-  { id: "DRAW_POINT",  icon: <CircleDot size={16} /> },
-];
-
-const tools = [
-  { id: "SELECT", icon: <Move size={18} />, label: "Select" },
-  { id: "EDIT_RECT", icon: <Edit size={18} />, label: "Edit" },
+  { id: "DRAW_RECT", icon: <Square size={16} /> },
+  { id: "DRAW_POINT", icon: <CircleDot size={16} /> },
 ];
 
 export default function ToolSelector() {
@@ -38,20 +33,31 @@ export default function ToolSelector() {
     setShowDropdown(false);
   };
 
+  const isEditToolSelected = selectedTool === "EDIT_RECT" || selectedTool === "EDIT_POINT";
+
   return (
     <div className="absolute top-4 left-4 z-20 flex gap-2">
-      {/* Normal Tools */}
-      {tools.map(({ id, icon, label }) => (
-        <button
-          key={id}
-          title={label}
-          onClick={() => handleSelectTool(id)}
-          className={`w-10 h-10 flex items-center justify-center shadow border border-zinc-600 transition
-            ${selectedTool === id ? "bg-blue-600/80 text-white" : "bg-zinc-800/80 text-zinc-300 hover:bg-zinc-700/80"}`}
-        >
-          {icon}
-        </button>
-      ))}
+      {/* Select Tool */}
+      <button
+        key="SELECT"
+        title="Select"
+        onClick={() => handleSelectTool("SELECT")}
+        className={`w-10 h-10 flex items-center justify-center shadow border border-zinc-600 transition
+          ${selectedTool === "SELECT" ? "bg-blue-600/80 text-white" : "bg-zinc-800/80 text-zinc-300 hover:bg-zinc-700/80"}`}
+      >
+        <Move size={18} />
+      </button>
+
+      {/* Edit Tool */}
+      <button
+        key="EDIT_RECT"
+        title="Edit"
+        onClick={() => handleSelectTool("EDIT_RECT")} // default to EDIT_RECT
+        className={`w-10 h-10 flex items-center justify-center shadow border border-zinc-600 transition
+          ${isEditToolSelected ? "bg-blue-600/80 text-white" : "bg-zinc-800/80 text-zinc-300 hover:bg-zinc-700/80"}`}
+      >
+        <Edit size={18} />
+      </button>
 
       {/* Draw Tool with Dropdown */}
       <div className="relative">

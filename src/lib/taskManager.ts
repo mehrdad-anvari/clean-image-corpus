@@ -5,6 +5,7 @@ import { keyboardHandle } from "@/tools/keyboard";
 import { Dispatch, Action } from 'redux';
 import { CanvasState } from "@/features/tools/canvas";
 import { drawPointTool } from "@/tools/drawPoint";
+import { editPointTool } from "@/tools/editPoint";
 
 function isMouseEvent(e: React.MouseEvent<HTMLCanvasElement> | React.KeyboardEvent<HTMLCanvasElement>): e is React.MouseEvent<HTMLCanvasElement> {
     return e.type === 'mousemove' || e.type === 'mousedown' || e.type === 'mouseup';
@@ -32,9 +33,13 @@ export function TaskManager(e: React.MouseEvent<HTMLCanvasElement> | React.Keybo
             case 'DRAW_RECT':
                 drawRectTool(e, canvasState, dispatch);
                 break;
-            
+
             case 'DRAW_POINT':
                 drawPointTool(e, canvasState, dispatch);
+                break;
+
+            case 'EDIT_POINT':
+                editPointTool(e, canvasState, dispatch);
                 break;
         }
     }

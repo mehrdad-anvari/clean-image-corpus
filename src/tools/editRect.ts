@@ -19,6 +19,14 @@ export function editRectTool(
             } else {
                 dispatch(resetSelectedVertex())
                 if (canvasState.hoveringAnnotation != -1) {
+                    switch (canvasState.annotations[canvasState.hoveringAnnotation].object.type) {
+                        case 'bbox':
+                            dispatch(setSelectedTool('EDIT_RECT'));
+                            break;
+                        case 'keypoint':
+                            dispatch(setSelectedTool('EDIT_POINT'))
+                            break;
+                    }
                     dispatch(selectAnnotationFromHover())
                 } else {
                     dispatch(setSelectedTool('SELECT'))

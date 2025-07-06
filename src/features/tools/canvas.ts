@@ -21,7 +21,8 @@ export interface CanvasState {
     lastIndex: number,
     historyLastIndex: number,
     zoom: number,
-    isDrawing: boolean
+    isDrawing: boolean,
+    isEditing: boolean,
 }
 
 const initialState: CanvasState = {
@@ -39,7 +40,8 @@ const initialState: CanvasState = {
     lastIndex: 0,
     historyLastIndex: 0,
     zoom: 800,
-    isDrawing: false
+    isDrawing: false,
+    isEditing: false,
 }
 
 export const canvasSlice = createSlice({
@@ -205,6 +207,14 @@ export const canvasSlice = createSlice({
 
             }
         },
+        moveSelectedPoint: (state, action: PayloadAction<Point>) => {
+            const p = action.payload;
+            const selectedAnnotationObj = state.annotations[state.selectedAnnotation]['object']
+            if (selectedAnnotationObj.type == 'keypoint'){
+                const newPoint = Keypoint.move(selectedAnnotationObj, p.x, p.y);
+                state.annotations[state.selectedAnnotation]['object'] = newPoint
+            }
+        },
         setSelectedTool: (state, action: PayloadAction<string>) => {
             state.selectedTool = action.payload
         },
@@ -221,6 +231,9 @@ export const canvasSlice = createSlice({
         setIsDrawing: (state, action: PayloadAction<boolean>) => {
             state.isDrawing = action.payload
         },
+        setIsEditing: (state, action: PayloadAction<boolean>) => {
+            state.isEditing = action.payload
+        },
         resetCanvasState: () => initialState
     }
 })
@@ -229,7 +242,7 @@ export const { startDrawRect, updateDrawRect, updateHoveringAnnotation,
     updateHoveringVertex, goBackwardHistory, goForwardHistory, selectAnnotationFromHover,
     selectVertexFromHover, setSelectedTool, moveVertex, resetCanvasState, resetSelectedAnnotation,
     resetSelectedVertex, saveAnnotationsHistory, setCanvasSize, setSelectedClassID, loadAnnotations,
-    resetHistory, setSelectedAnnotation, removeAnnotation, updateRect, setIsDrawing,
-    drawPoint } = canvasSlice.actions
+    resetHistory, setSelectedAnnotation, removeAnnotation, updateRect, setIsDrawing, setIsEditing,
+    drawPoint, moveSelectedPoint } = canvasSlice.actions
 
 export default canvasSlice.reducer
