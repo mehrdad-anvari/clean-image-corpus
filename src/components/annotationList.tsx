@@ -24,8 +24,6 @@ export default function AnnotationList() {
     if (selectedObject)
       setEditValues({ ...selectedObject })
   }, [selectedObject])
-  
-  console.log('render')
 
   const handleSelect = (id: number) => {
     dispatch(setSelectedAnnotation(id))
