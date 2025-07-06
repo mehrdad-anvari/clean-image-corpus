@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import Rectangle from "@/annotations/rectangle";
+import Keypoint from "@/annotations/point";
 import { AnnotationObject, Point, PointObject, RectangleObject } from "@/interfaces";
 
 interface AnnotationsSnapshot { [key: number]: { object: AnnotationObject } };
@@ -137,6 +138,9 @@ export const canvasSlice = createSlice({
                     case 'line':
                         break
                     case 'keypoint':
+                        if (Keypoint.isNear(annotation['object'], p.x, p.y)) {
+                            state.hoveringAnnotation = Number(index);
+                        }
                         break
                 }
                 if (state.hoveringAnnotation != -1) break

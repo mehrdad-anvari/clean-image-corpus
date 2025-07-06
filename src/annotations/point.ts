@@ -1,6 +1,6 @@
 import { PointObject } from "@/interfaces";
 
-class Point {
+class Keypoint {
     static move(point: PointObject, x: number, y: number): PointObject {
         return { ...point, x, y };
     }
@@ -38,4 +38,4 @@ class Point {
     }
 }
 
-export default Point;
+export default Keypoint;

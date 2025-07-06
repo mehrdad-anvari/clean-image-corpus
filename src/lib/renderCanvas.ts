@@ -1,4 +1,4 @@
-import Point from "@/annotations/point";
+import Keypoint from "@/annotations/point";
 import Rectangle from "@/annotations/rectangle";
 import { CanvasState } from "@/features/tools/canvas";
 import { AnnotationSettingsState } from "@/features/tools/settings";
@@ -36,9 +36,9 @@ export function renderCanvas(canvas: HTMLCanvasElement, imageSrc: string, canvas
           break;
         case 'keypoint':
           if (canvasState.selectedTool == 'DRAW_POINT' || canvasState.selectedTool == 'SELECT') {
-            Point.draw(annotationObj, canvas, i === canvasState.selectedAnnotation,  color);
+            Keypoint.draw(annotationObj, canvas, i === canvasState.selectedAnnotation,  color);
           } else {
-            Point.draw(annotationObj, canvas, (i === canvasState.hoveringAnnotation) || (i === canvasState.selectedAnnotation), color);
+            Keypoint.draw(annotationObj, canvas, (i === canvasState.hoveringAnnotation) || (i === canvasState.selectedAnnotation), color);
           }
           break;
       }
