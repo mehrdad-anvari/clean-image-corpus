@@ -13,7 +13,8 @@ export default function Home() {
     setImagesDirHandle,
     setAnnotationsDirHandle,
     setDb,
-    rootDirHandle
+    setIsReady,
+    isReady,
   } = useProject();
   const dispatch = useAppDispatch()
 
@@ -49,21 +50,21 @@ export default function Home() {
         console.log('settings:', settings)
         dispatch(setSettings(settings))
       }
+      setIsReady(true);
+      console.log("Project folder set successfully.");
 
     } catch (err) {
       console.error("Failed to read folder", err);
     }
   }
 
-  const disabled = !rootDirHandle;
-
   const renderCard = (href: string, label: string) =>
-    disabled ? (
-      <div className="w-52 h-52 bg-neutral-800 border border-neutral-700 text-gray-500 flex items-center justify-center rounded-xl text-lg font-medium cursor-pointer" title="Set project folder first">{label}</div>
-    ) : (
+    isReady ? (
       <Link href={href}>
         <div className="w-52 h-52 bg-neutral-800 hover:bg-neutral-700 border border-neutral-700 hover:border-neutral-500 text-white flex items-center justify-center rounded-xl text-lg font-medium shadow-md transition-all duration-200 cursor-pointer">{label}</div>
       </Link>
+      ) : (
+      <div className="w-52 h-52 bg-neutral-800 border border-neutral-700 text-gray-500 flex items-center justify-center rounded-xl text-lg font-medium cursor-pointer" title="Set project folder first">{label}</div>
     );
 
   return (

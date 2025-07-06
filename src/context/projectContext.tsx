@@ -10,6 +10,8 @@ type ProjectContextType = {
   setAnnotationsDirHandle: React.Dispatch<React.SetStateAction<FileSystemDirectoryHandle | null>>;
   db: IDBDatabase | null;
   setDb: React.Dispatch<React.SetStateAction<IDBDatabase | null>>;
+  isReady: boolean;
+  setIsReady: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
@@ -19,6 +21,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   const [imagesDirHandle, setImagesDirHandle] = useState<FileSystemDirectoryHandle | null>(null);
   const [annotationsDirHandle, setAnnotationsDirHandle] = useState<FileSystemDirectoryHandle | null>(null);
   const [db, setDb] = useState<IDBDatabase | null>(null);
+  const [isReady, setIsReady] = useState<boolean>(false);
 
   return (
     <ProjectContext.Provider
@@ -31,6 +34,8 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
         setAnnotationsDirHandle,
         db,
         setDb,
+        isReady,
+        setIsReady,
       }}
     >
       {children}
