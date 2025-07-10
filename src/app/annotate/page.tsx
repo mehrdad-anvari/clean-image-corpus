@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import ImageSidebar from "@/components/imageSidebar";
 import CanvasArea from "@/components/canvasArea";
 import AnnotationList from "@/components/annotationList";
+import SettingsModal from "@/components/settingsModal";
 
 import Toolbar from "@/components/toolbar";
 import { indexedImage } from "@/interfaces";
@@ -12,150 +13,9 @@ import { useAppDispatch } from "@/app/hooks";
 import { useSelector } from "react-redux";
 import { RootState, store } from "@/app/store";
 import { loadAnnotations, resetCanvasState, resetHistory } from "@/features/tools/canvas";
-import { addRectClass, AnnotationSettingsState, deleteRectClass } from "@/features/tools/settings";
 import { saveSettings } from "@/lib/saveSettings";
 import { saveAnnotationsYOLO } from "@/lib/export";
 import ToolSelector from "@/components/toolSelector";
-
-const getRandomColor = (): [number, number, number] => {
-    const r = Math.floor(Math.random() * 256); // Random red value
-    const g = Math.floor(Math.random() * 256); // Random green value
-    const b = Math.floor(Math.random() * 256); // Random blue value
-    return [r, g, b]; // Return as an array
-};
-
-const ColorBullet = ({ color = [255, 255, 255] }) => (
-    <div
-        className="w-5 h-5 rounded shadow-sm"
-        style={{
-            backgroundColor: `rgb(${color[0]}, ${color[1]}, ${color[2]})`,
-        }}
-    />
-);
-
-interface SettingsModalProps {
-    isOpen: boolean,
-    onClose: () => void,
-    settings: AnnotationSettingsState
-}
-
-const SettingsModal = ({ isOpen, onClose, settings }: SettingsModalProps) => {
-    const dispatch = useAppDispatch();
-    const [newClassName, setNewClassName] = useState('');
-    const [newClassColor, setNewClassColor] = useState(getRandomColor());
-    const [newClassId, setNewClassId] = useState(Object.keys(settings.rectClasses).length);
-    const [error, setError] = useState('');
-
-    if (!isOpen) return null;
-
-    const handleAddClass = () => {
-        if (newClassName.trim() === '') {
-            setError('Class name cannot be empty.');
-            return;
-        }
-
-        const isDuplicateName = Object.values(settings.rectClasses).some(
-            (classAttr) => classAttr.name === newClassName
-        );
-
-        const isDuplicateColor = Object.values(settings.rectClasses).some(
-            (classAttr) =>
-                classAttr.color[0] === newClassColor[0] &&
-                classAttr.color[1] === newClassColor[1] &&
-                classAttr.color[2] === newClassColor[2]
-        );
-
-        if (isDuplicateName) {
-            setError('Class name already exists.');
-            return;
-        }
-
-        if (isDuplicateColor) {
-            setError('Class color already exists.');
-            return;
-        }
-
-        dispatch(addRectClass({ id: newClassId, attrs: { name: newClassName, color: newClassColor } }));
-        setNewClassName('');
-        setNewClassColor(getRandomColor());
-        setNewClassId(newClassId + 1);
-        setError('');
-    };
-
-    const handleDeleteClass = (id: number) => {
-        dispatch(deleteRectClass(id));
-    };
-
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-50">
-            <div className="bg-zinc-900 p-6 rounded-xl shadow-2xl w-full max-w-xl border border-zinc-700">
-                <div className="p-2 sm:p-4 text-zinc-100">
-                    <h2 className="text-xl font-bold mb-4">Rectangle Classes</h2>
-
-                    {error && <p className="text-red-400 mb-2">{error}</p>}
-
-                    <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                        <div className="flex flex-col sm:flex-row items-center gap-2">
-                            <input
-                                type="text"
-                                value={newClassName}
-                                onChange={(e) => setNewClassName(e.target.value)}
-                                placeholder="Class Name"
-                                className="bg-zinc-800 text-white border border-zinc-600 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                            <input
-                                type="color"
-                                value={`#${newClassColor.map(c => c.toString(16).padStart(2, '0')).join('')}`}
-                                onChange={(e) => {
-                                    const color = e.target.value.slice(1).match(/.{1,2}/g)!.map(hex => parseInt(hex, 16)) as [number, number, number];
-                                    setNewClassColor(color);
-                                }}
-                                onClick={() => { setNewClassColor(getRandomColor()) }}
-                                className="cursor-pointer border border-zinc-600 rounded-md w-10 h-10"
-                            />
-                        </div>
-                        <button
-                            onClick={handleAddClass}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition"
-                        >
-                            Add Class
-                        </button>
-                    </div>
-
-                    <div className="overflow-y-auto max-h-72 border-t border-zinc-700 pt-4">
-                        <ul className="space-y-3">
-                            {Object.entries(settings.rectClasses).map(([id, { name, color }]) => (
-                                <li
-                                    key={id}
-                                    className="flex items-center justify-between gap-3 text-sm bg-zinc-800 p-2 rounded-md shadow-sm"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <ColorBullet color={color} />
-                                        <span className="text-zinc-400">#{id}</span>
-                                        <span className="text-zinc-100">{name}</span>
-                                    </div>
-                                    <button
-                                        onClick={() => handleDeleteClass(Number(id))}
-                                        className="bg-red-600 hover:bg-red-700 text-white py-1 px-3 rounded-md transition"
-                                    >
-                                        Remove
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    <button
-                        className="mt-6 w-full bg-zinc-700 hover:bg-zinc-600 text-white py-2 rounded-md transition"
-                        onClick={onClose}
-                    >
-                        Close
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-};
 
 export default function AnnotatePage() {
     const dispatch = useAppDispatch()
@@ -240,7 +100,6 @@ export default function AnnotatePage() {
 
     useEffect(() => {
         try {
-            console.log('run')
             handleLoadImages()
         } catch (error) {
             console.log('error in loading images. error:', error)
