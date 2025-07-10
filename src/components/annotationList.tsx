@@ -3,7 +3,7 @@ import { AnnotationObject } from "@/interfaces";
 import { useAppDispatch } from "@/app/hooks";
 import { useSelector, shallowEqual } from "react-redux";
 import { RootState } from "@/app/store";
-import { removeAnnotation, saveAnnotationsHistory, setSelectedAnnotation, setSelectedClassID, updateRect } from "@/features/tools/canvas";
+import { removeAnnotation, saveAnnotationsHistory, setSelectedAnnotation, setSelectedClassID, updateAnnotation } from "@/features/tools/canvas";
 
 export default function AnnotationList() {
   const dispatch = useAppDispatch();
@@ -41,12 +41,17 @@ export default function AnnotationList() {
       switch (editValues.type) {
         case 'bbox':
           if (settings.rectClasses[editValues.class_id]) {
-            dispatch(updateRect({ updatedRect: editValues, Index: selectedIndex }))
+            dispatch(updateAnnotation({ updatedAnnotation: editValues, Index: selectedIndex }))
             dispatch(setSelectedClassID(editValues.class_id))
             dispatch(saveAnnotationsHistory())
           }
           break;
         case 'keypoint':
+          if (settings.pointClasses[editValues.class_id]) {
+            dispatch(updateAnnotation({ updatedAnnotation: editValues, Index: selectedIndex }))
+            dispatch(setSelectedClassID(editValues.class_id))
+            dispatch(saveAnnotationsHistory())
+          }
           break;
       }
     }

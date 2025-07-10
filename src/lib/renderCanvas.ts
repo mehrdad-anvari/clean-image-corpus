@@ -19,7 +19,7 @@ export function renderCanvas(canvas: HTMLCanvasElement, imageSrc: string, canvas
   for (const [index, annotation] of entries) {
     const i = Number(index)
     const annotationObj = annotation.object
-    const color = settings.rectClasses[annotation.object.class_id].color
+    let color = null
     if (annotationObj) {
       if (i === canvasState.selectedAnnotation) {
         highlighted_vertex = canvasState.hoveringVertex
@@ -28,21 +28,23 @@ export function renderCanvas(canvas: HTMLCanvasElement, imageSrc: string, canvas
       }
       switch (annotationObj.type) {
         case 'bbox':
+          color = settings.rectClasses[annotation.object.class_id].color
           if (canvasState.selectedTool == 'DRAW_RECT' || canvasState.selectedTool == 'SELECT') {
-            Rectangle.draw(annotationObj, canvas, i === canvasState.selectedAnnotation, null, color);
+            Rectangle.draw(annotationObj, canvas, i === canvasState.selectedAnnotation, null, settings.rectClasses[annotation.object.class_id].color);
           } else {
             Rectangle.draw(annotationObj, canvas, (i === canvasState.hoveringAnnotation) || (i === canvasState.selectedAnnotation), highlighted_vertex, color);
           }
           break;
         case 'keypoint':
+          color = settings.pointClasses[annotation.object.class_id].color
           if (canvasState.selectedTool == 'DRAW_POINT' || canvasState.selectedTool == 'SELECT') {
-            Keypoint.draw(annotationObj, canvas, i === canvasState.selectedAnnotation,  color);
+            Keypoint.draw(annotationObj, canvas, i === canvasState.selectedAnnotation, color);
           } else {
             Keypoint.draw(annotationObj, canvas, (i === canvasState.hoveringAnnotation) || (i === canvasState.selectedAnnotation), color);
           }
           break;
       }
-      
+
     }
   }
 };

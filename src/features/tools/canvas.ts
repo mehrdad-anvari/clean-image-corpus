@@ -120,8 +120,8 @@ export const canvasSlice = createSlice({
                 y2: p.y,
             }
         },
-        updateRect: (state, action: PayloadAction<{ updatedRect: RectangleObject, Index: number }>) => {
-            state.annotations[action.payload.Index].object = action.payload.updatedRect
+        updateAnnotation: (state, action: PayloadAction<{ updatedAnnotation: AnnotationObject, Index: number }>) => {
+            state.annotations[action.payload.Index].object = action.payload.updatedAnnotation
         },
         updateHoveringAnnotation: (state, action: PayloadAction<Point>) => {
             state.hoveringAnnotation = -1;
@@ -242,7 +242,7 @@ export const { startDrawRect, updateDrawRect, updateHoveringAnnotation,
     updateHoveringVertex, goBackwardHistory, goForwardHistory, selectAnnotationFromHover,
     selectVertexFromHover, setSelectedTool, moveVertex, resetCanvasState, resetSelectedAnnotation,
     resetSelectedVertex, saveAnnotationsHistory, setCanvasSize, setSelectedClassID, loadAnnotations,
-    resetHistory, setSelectedAnnotation, removeAnnotation, updateRect, setIsDrawing, setIsEditing,
+    resetHistory, setSelectedAnnotation, removeAnnotation, updateAnnotation, setIsDrawing, setIsEditing,
     drawPoint, moveSelectedPoint } = canvasSlice.actions
 
 export default canvasSlice.reducer
