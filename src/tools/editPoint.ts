@@ -4,42 +4,65 @@ import {
     updateHoveringAnnotation, resetSelectedVertex,
     selectAnnotationFromHover, resetSelectedAnnotation,
     setSelectedTool,
-    setIsEditing
+    setIsEditing,
+    updateAnnotation,
+    setSelectedClassID
 } from "@/features/tools/canvas";
 import { Dispatch, Action } from 'redux';
 import { CanvasState } from "@/features/tools/canvas";
+import { AnnotationSettingsState } from "@/features/tools/settings";
 
 export function editPointTool(
     event: React.MouseEvent<HTMLCanvasElement>,
     canvasState: CanvasState,
+    settings: AnnotationSettingsState,
     dispatch: Dispatch<Action>,
 ) {
     switch (event.type) {
         case 'mousedown':
-            if (canvasState.hoveringAnnotation != -1) {
-                switch (canvasState.annotations[canvasState.hoveringAnnotation].object.type) {
-                    case 'bbox':
-                        dispatch(setSelectedTool('EDIT_RECT'));
-                        dispatch(setIsEditing(true))
-                        break;
-                    case 'keypoint':
-                        dispatch(setSelectedTool('EDIT_POINT'))
-                        dispatch(setIsEditing(true))
-                        break;
+            if (event.button == 0) {
+                if (canvasState.hoveringAnnotation != -1) {
+                    switch (canvasState.annotations[canvasState.hoveringAnnotation].object.type) {
+                        case 'bbox':
+                            dispatch(setSelectedTool('EDIT_RECT'));
+                            dispatch(setIsEditing(true))
+                            break;
+                        case 'keypoint':
+                            dispatch(setSelectedTool('EDIT_POINT'))
+                            dispatch(setIsEditing(true))
+                            break;
+                    }
+                    dispatch(selectAnnotationFromHover())
+                } else {
+                    dispatch(setSelectedTool('SELECT'))
+                    dispatch(setIsEditing(false))
+                    dispatch(resetSelectedAnnotation())
+                    dispatch(resetSelectedVertex())
                 }
-                dispatch(selectAnnotationFromHover())
-            } else {
-                dispatch(setSelectedTool('SELECT'))
-                dispatch(setIsEditing(false))
-                dispatch(resetSelectedAnnotation())
-                dispatch(resetSelectedVertex())
+            } else if (event.button == 2) {
+                const keypointSettings = settings['pointClasses']
+                const selectedAnnotationIndex = canvasState.selectedAnnotation
+                const keypoint = canvasState.annotations[selectedAnnotationIndex].object
+                const classID = keypoint.class_id
+                if (keypointSettings[classID + 1]) {
+                    const updatedKeypoint = { ...keypoint, class_id: classID + 1 }
+                    dispatch(updateAnnotation({ updatedAnnotation: updatedKeypoint, Index: selectedAnnotationIndex }))
+                    dispatch(setSelectedClassID(classID + 1))
+                } else {
+                    const updatedKeypoint = { ...keypoint, class_id: 0 }
+                    dispatch(updateAnnotation({ updatedAnnotation: updatedKeypoint, Index: selectedAnnotationIndex }))
+                    dispatch(setSelectedClassID(0))
+                }
+                dispatch(saveAnnotationsHistory())
             }
             break;
 
         case 'mouseup':
-            if (canvasState.selectedAnnotation != -1) {
-                dispatch(saveAnnotationsHistory())
-                dispatch(setIsEditing(false))
+            if (event.button == 0) {
+                if (canvasState.selectedAnnotation != -1) {
+                    dispatch(saveAnnotationsHistory())
+                    dispatch(setIsEditing(false))
+                }
             }
             break;
 

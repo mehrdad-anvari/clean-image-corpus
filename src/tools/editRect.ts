@@ -2,44 +2,68 @@ import { getNormalizedCoords } from "@/lib/utils";
 import {
     saveAnnotationsHistory, updateHoveringVertex,
     updateHoveringAnnotation, moveVertex, resetSelectedVertex, selectVertexFromHover,
-    selectAnnotationFromHover, resetSelectedAnnotation, setSelectedTool
+    selectAnnotationFromHover, resetSelectedAnnotation, setSelectedTool,
+    updateAnnotation,
+    setSelectedClassID
 } from "@/features/tools/canvas";
 import { Dispatch, Action } from 'redux';
 import { CanvasState } from "@/features/tools/canvas";
+import { AnnotationSettingsState } from "@/features/tools/settings";
 
 export function editRectTool(
     event: React.MouseEvent<HTMLCanvasElement>,
     canvasState: CanvasState,
+    settings: AnnotationSettingsState,
     dispatch: Dispatch<Action>,
 ) {
     switch (event.type) {
         case 'mousedown':
-            if (canvasState.hoveringVertex != -1) {
-                dispatch(selectVertexFromHover())
-            } else {
-                dispatch(resetSelectedVertex())
-                if (canvasState.hoveringAnnotation != -1) {
-                    switch (canvasState.annotations[canvasState.hoveringAnnotation].object.type) {
-                        case 'bbox':
-                            dispatch(setSelectedTool('EDIT_RECT'));
-                            break;
-                        case 'keypoint':
-                            dispatch(setSelectedTool('EDIT_POINT'))
-                            break;
-                    }
-                    dispatch(selectAnnotationFromHover())
+            if (event.button == 0) {
+                if (canvasState.hoveringVertex != -1) {
+                    dispatch(selectVertexFromHover())
                 } else {
-                    dispatch(setSelectedTool('SELECT'))
-                    dispatch(resetSelectedAnnotation())
                     dispatch(resetSelectedVertex())
+                    if (canvasState.hoveringAnnotation != -1) {
+                        switch (canvasState.annotations[canvasState.hoveringAnnotation].object.type) {
+                            case 'bbox':
+                                dispatch(setSelectedTool('EDIT_RECT'));
+                                break;
+                            case 'keypoint':
+                                dispatch(setSelectedTool('EDIT_POINT'))
+                                break;
+                        }
+                        dispatch(selectAnnotationFromHover())
+                    } else {
+                        dispatch(setSelectedTool('SELECT'))
+                        dispatch(resetSelectedAnnotation())
+                        dispatch(resetSelectedVertex())
+                    }
                 }
+            } else if (event.button == 2) {
+                const rectSettings = settings['rectClasses']
+                const selectedAnnotationIndex = canvasState.selectedAnnotation
+                const Rect = canvasState.annotations[selectedAnnotationIndex].object
+                const classID = Rect.class_id
+                if (rectSettings[classID + 1]) {
+                    const updatedRect = { ...Rect, class_id: classID + 1 }
+                    dispatch(updateAnnotation({ updatedAnnotation: updatedRect, Index: selectedAnnotationIndex }))
+                    dispatch(setSelectedClassID(classID + 1))
+                } else {
+                    const updatedRect = { ...Rect, class_id: 0 }
+                    dispatch(updateAnnotation({ updatedAnnotation: updatedRect, Index: selectedAnnotationIndex }))
+                    dispatch(setSelectedClassID(0))
+                }
+                dispatch(saveAnnotationsHistory())
             }
             break;
 
         case 'mouseup':
-            if (canvasState.selectedVertex != -1) {
-                dispatch(saveAnnotationsHistory())
-                dispatch(resetSelectedVertex())
+            if (event.button == 0) {
+                if (canvasState.selectedVertex != -1) {
+                    dispatch(saveAnnotationsHistory())
+                    dispatch(resetSelectedVertex())
+
+                }
             }
             break;
 

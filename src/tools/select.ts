@@ -1,30 +1,51 @@
 import { getNormalizedCoords } from "@/lib/utils";
 import { Dispatch, Action } from 'redux';
 import {
-    CanvasState, selectAnnotationFromHover, setIsEditing, setSelectedTool,
+    CanvasState, selectAnnotationFromHover, setIsEditing, setSelectedClassID, setSelectedTool,
     updateHoveringAnnotation, updateHoveringVertex
 } from "@/features/tools/canvas";
+import { AnnotationSettingsState } from "@/features/tools/settings";
 
+const typeMap = {
+    'bbox' : 'rectClasses',
+    'keypoint' : 'pointClasses',
+    'line': 'lineClasses',
+    'obb' : 'obbClasses',
+    'polygon' : 'polygonClasses'
+}
 
 export function selectTool(
     event: React.MouseEvent<HTMLCanvasElement>,
     canvasState: CanvasState,
+    settings: AnnotationSettingsState,
     dispatch: Dispatch<Action>,
 ) {
     switch (event.type) {
         case 'mousedown':
-            if (canvasState.hoveringAnnotation != -1) {
-                switch (canvasState.annotations[canvasState.hoveringAnnotation].object.type){
-                    case 'bbox':
-                        dispatch(setSelectedTool('EDIT_RECT'));
-                        dispatch(setIsEditing(true))
-                        break;
-                    case 'keypoint':
-                        dispatch(setSelectedTool('EDIT_POINT'))
-                        dispatch(setIsEditing(true))
-                        break;
+            if (event.button == 0) {
+                if (canvasState.hoveringAnnotation != -1) {
+                    switch (canvasState.annotations[canvasState.hoveringAnnotation].object.type) {
+                        case 'bbox':
+                            dispatch(setSelectedTool('EDIT_RECT'));
+                            dispatch(setIsEditing(true))
+                            break;
+                        case 'keypoint':
+                            dispatch(setSelectedTool('EDIT_POINT'))
+                            dispatch(setIsEditing(true))
+                            break;
+                    }
+                    dispatch(selectAnnotationFromHover());
                 }
-                dispatch(selectAnnotationFromHover());
+            } else if (event.button == 2) {
+                const selectedClassID = canvasState.selectedClassID;
+                const lastIndex = Math.max(...Object.keys(canvasState.annotations).map(Number))
+                const lastAnnotationType = canvasState.annotations[lastIndex].object.type
+                const selectedTypeSettings = settings[typeMap[lastAnnotationType] as 'rectClasses' | 'pointClasses' | 'polygonClasses' | 'obbClasses' | 'lineClasses']
+                if (selectedTypeSettings[selectedClassID + 1]) {
+                    dispatch(setSelectedClassID(selectedClassID+1))
+                } else {
+                    dispatch(setSelectedClassID(0))
+                }
             }
             break;
 
