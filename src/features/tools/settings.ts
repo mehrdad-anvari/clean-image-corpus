@@ -3,28 +3,28 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 
 type classAttributes = { name: string, color: [number, number, number] }
 export interface AnnotationSettingsState {
-    rectClasses: { [key: number]: classAttributes },
-    pointClasses: { [key: number]: classAttributes },
-    polygonClasses: { [key: number]: classAttributes },
-    lineClasses: { [key: number]: classAttributes },
-    obbClasses: { [key: number]: classAttributes },
+    bbox: { [key: number]: classAttributes },
+    keypoint: { [key: number]: classAttributes },
+    polygon: { [key: number]: classAttributes },
+    line: { [key: number]: classAttributes },
+    obb: { [key: number]: classAttributes },
     rectMinEdgeSize: number,
 }
 
 const initialState: AnnotationSettingsState = {
-    rectClasses: {
+    bbox: {
         [0]: { name: 'default', color: [255, 255, 255] }
     },
-    pointClasses: {
+    keypoint: {
         [0]: { name: 'default', color: [255, 255, 255] }
     },
-    polygonClasses: {
+    polygon: {
         [0]: { name: 'default', color: [255, 255, 255] }
     },
-    lineClasses: {
+    line: {
         [0]: { name: 'default', color: [255, 255, 255] }
     },
-    obbClasses: {
+    obb: {
         [0]: { name: 'default', color: [255, 255, 255] }
     },
     rectMinEdgeSize: 0.02
@@ -35,34 +35,34 @@ export const annotationSettingsSlice = createSlice({
     initialState,
     reducers: {
         addRectClass: (state, action: PayloadAction<{ id: number, attrs: classAttributes }>) => {
-            state.rectClasses[action.payload.id] = action.payload.attrs;
+            state.bbox[action.payload.id] = action.payload.attrs;
         },
         addPointClass: (state, action: PayloadAction<{ id: number, attrs: classAttributes }>) => {
-            state.pointClasses[action.payload.id] = action.payload.attrs;
+            state.keypoint[action.payload.id] = action.payload.attrs;
         },
         addPolygonClass: (state, action: PayloadAction<{ id: number, attrs: classAttributes }>) => {
-            state.polygonClasses[action.payload.id] = action.payload.attrs;
+            state.polygon[action.payload.id] = action.payload.attrs;
         },
         addLineClass: (state, action: PayloadAction<{ id: number, attrs: classAttributes }>) => {
-            state.lineClasses[action.payload.id] = action.payload.attrs;
+            state.line[action.payload.id] = action.payload.attrs;
         },
         addObbClass: (state, action: PayloadAction<{ id: number, attrs: classAttributes }>) => {
-            state.obbClasses[action.payload.id] = action.payload.attrs;
+            state.obb[action.payload.id] = action.payload.attrs;
         },
         deleteRectClass: (state, action: PayloadAction<number>) => {
-            delete state.rectClasses[action.payload];
+            delete state.bbox[action.payload];
         },
         deletePointClass: (state, action: PayloadAction<number>) => {
-            delete state.pointClasses[action.payload];
+            delete state.keypoint[action.payload];
         },
         deletePolygonClass: (state, action: PayloadAction<number>) => {
-            delete state.polygonClasses[action.payload];
+            delete state.polygon[action.payload];
         },
         deleteLineClass: (state, action: PayloadAction<number>) => {
-            delete state.lineClasses[action.payload];
+            delete state.line[action.payload];
         },
         deleteObbClass: (state, action: PayloadAction<number>) => {
-            delete state.obbClasses[action.payload];
+            delete state.obb[action.payload];
         },
         setSettings: (state, action: PayloadAction<AnnotationSettingsState>) => {
             return { ...state, ...action.payload }

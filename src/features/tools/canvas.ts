@@ -243,6 +243,6 @@ export const { startDrawRect, updateDrawRect, updateHoveringAnnotation,
     selectVertexFromHover, setSelectedTool, moveVertex, resetCanvasState, resetSelectedAnnotation,
     resetSelectedVertex, saveAnnotationsHistory, setCanvasSize, setSelectedClassID, loadAnnotations,
     resetHistory, setSelectedAnnotation, removeAnnotation, updateAnnotation, setIsDrawing, setIsEditing,
-    drawPoint, moveSelectedPoint } = canvasSlice.actions
+    drawPoint, moveSelectedPoint} = canvasSlice.actions
 
 export default canvasSlice.reducer

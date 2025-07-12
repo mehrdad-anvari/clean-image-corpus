@@ -10,7 +10,7 @@ import {
   AnnotationSettingsState
 } from '@/features/tools/settings';
 
-const annotationTypes = ['rect', 'point', 'polygon', 'line', 'obb'] as const;
+const annotationTypes = ['bbox', 'keypoint', 'polygon', 'line', 'obb'] as const;
 type AnnotationType = typeof annotationTypes[number];
 
 interface SettingsModalProps {
@@ -37,15 +37,15 @@ const ColorBullet = ({ color = [255, 255, 255] }) => (
 
 const SettingsModal = ({ isOpen, onClose, settings }: SettingsModalProps) => {
   const dispatch = useAppDispatch();
-  const [activeTab, setActiveTab] = useState<AnnotationType>('rect');
+  const [activeTab, setActiveTab] = useState<AnnotationType>('bbox');
   const [newClassName, setNewClassName] = useState('');
   const [newClassColor, setNewClassColor] = useState(getRandomColor());
-  const [newClassId, setNewClassId] = useState(Object.keys(settings[`rectClasses`]).length);
+  const [newClassId, setNewClassId] = useState(Object.keys(settings[`bbox`]).length);
   const [error, setError] = useState('');
 
   if (!isOpen) return null;
 
-  const getClasses = () => settings[`${activeTab}Classes`] || {};
+  const getClasses = () => settings[`${activeTab}`] || {};
 
   const handleAddClass = () => {
     if (newClassName.trim() === '') {
@@ -76,8 +76,8 @@ const SettingsModal = ({ isOpen, onClose, settings }: SettingsModalProps) => {
     }
 
     const actionMap = {
-      rect: addRectClass,
-      point: addPointClass,
+      bbox: addRectClass,
+      keypoint: addPointClass,
       polygon: addPolygonClass,
       line: addLineClass,
       obb: addObbClass
@@ -92,8 +92,8 @@ const SettingsModal = ({ isOpen, onClose, settings }: SettingsModalProps) => {
 
   const handleDeleteClass = (id: number) => {
     const actionMap = {
-      rect: deleteRectClass,
-      point: deletePointClass,
+      bbox: deleteRectClass,
+      keypoint: deletePointClass,
       polygon: deletePolygonClass,
       line: deleteLineClass,
       obb: deleteObbClass
@@ -116,7 +116,7 @@ const SettingsModal = ({ isOpen, onClose, settings }: SettingsModalProps) => {
                 key={type}
                 onClick={() => {
                   setActiveTab(type);
-                  setNewClassId(Object.keys(settings[`${type}Classes`]).length);
+                  setNewClassId(Object.keys(settings[`${type}`]).length);
                   setError('');
                 }}
                 className={`px-3 py-1 rounded-md transition ${

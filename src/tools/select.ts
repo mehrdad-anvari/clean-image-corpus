@@ -40,7 +40,7 @@ export function selectTool(
                 const selectedClassID = canvasState.selectedClassID;
                 const lastIndex = Math.max(...Object.keys(canvasState.annotations).map(Number))
                 const lastAnnotationType = canvasState.annotations[lastIndex].object.type
-                const selectedTypeSettings = settings[typeMap[lastAnnotationType] as 'rectClasses' | 'pointClasses' | 'polygonClasses' | 'obbClasses' | 'lineClasses']
+                const selectedTypeSettings = settings[typeMap[lastAnnotationType] as 'bbox' | 'keypoint' | 'polygon' | 'obb' | 'line']
                 if (selectedTypeSettings[selectedClassID + 1]) {
                     dispatch(setSelectedClassID(selectedClassID+1))
                 } else {

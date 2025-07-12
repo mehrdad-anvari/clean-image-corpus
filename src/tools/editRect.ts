@@ -4,7 +4,7 @@ import {
     updateHoveringAnnotation, moveVertex, resetSelectedVertex, selectVertexFromHover,
     selectAnnotationFromHover, resetSelectedAnnotation, setSelectedTool,
     updateAnnotation,
-    setSelectedClassID
+    setSelectedClassID,
 } from "@/features/tools/canvas";
 import { Dispatch, Action } from 'redux';
 import { CanvasState } from "@/features/tools/canvas";
@@ -30,6 +30,7 @@ export function editRectTool(
                                 break;
                             case 'keypoint':
                                 dispatch(setSelectedTool('EDIT_POINT'))
+                                dispatch(setSelectedClassID(0))
                                 break;
                         }
                         dispatch(selectAnnotationFromHover())
@@ -40,7 +41,7 @@ export function editRectTool(
                     }
                 }
             } else if (event.button == 2) {
-                const rectSettings = settings['rectClasses']
+                const rectSettings = settings['bbox']
                 const selectedAnnotationIndex = canvasState.selectedAnnotation
                 const Rect = canvasState.annotations[selectedAnnotationIndex].object
                 const classID = Rect.class_id

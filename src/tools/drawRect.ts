@@ -17,7 +17,7 @@ export function drawRectTool(
                 dispatch(startDrawRect({ classID: canvasState.selectedClassID, mousePosition: startPoint }))
                 dispatch(setIsDrawing(true))
             } else if (event.button == 2) {
-                const rectSettings = settings['rectClasses']
+                const rectSettings = settings['bbox']
                 const classID = canvasState.selectedClassID
                 if (rectSettings[classID + 1]) {
                     dispatch(setSelectedClassID(classID + 1))

@@ -17,7 +17,7 @@ export function drawPointTool(
                 dispatch(drawPoint({ classID: canvasState.selectedClassID, mousePosition: startPoint }))
                 dispatch(saveAnnotationsHistory())
             } else if (event.button == 2) {
-                const keypointSettings = settings['pointClasses']
+                const keypointSettings = settings['keypoint']
                 const classID = canvasState.selectedClassID
                 if (keypointSettings[classID + 1]) {
                     dispatch(setSelectedClassID(classID + 1))

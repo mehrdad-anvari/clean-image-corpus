@@ -6,7 +6,7 @@ import {
     setSelectedTool,
     setIsEditing,
     updateAnnotation,
-    setSelectedClassID
+    setSelectedClassID,
 } from "@/features/tools/canvas";
 import { Dispatch, Action } from 'redux';
 import { CanvasState } from "@/features/tools/canvas";
@@ -25,6 +25,7 @@ export function editPointTool(
                     switch (canvasState.annotations[canvasState.hoveringAnnotation].object.type) {
                         case 'bbox':
                             dispatch(setSelectedTool('EDIT_RECT'));
+                            dispatch(setSelectedClassID(0))
                             dispatch(setIsEditing(true))
                             break;
                         case 'keypoint':
@@ -40,7 +41,7 @@ export function editPointTool(
                     dispatch(resetSelectedVertex())
                 }
             } else if (event.button == 2) {
-                const keypointSettings = settings['pointClasses']
+                const keypointSettings = settings['keypoint']
                 const selectedAnnotationIndex = canvasState.selectedAnnotation
                 const keypoint = canvasState.annotations[selectedAnnotationIndex].object
                 const classID = keypoint.class_id

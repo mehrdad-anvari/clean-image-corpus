@@ -16,6 +16,7 @@ import { loadAnnotations, resetCanvasState, resetHistory } from "@/features/tool
 import { saveSettings } from "@/lib/saveSettings";
 import { saveAnnotationsYOLO } from "@/lib/export";
 import ToolSelector from "@/components/toolSelector";
+import ClassIdSelector from "@/components/classIdSelector";
 
 export default function AnnotatePage() {
     const dispatch = useAppDispatch()
@@ -205,6 +206,8 @@ export default function AnnotatePage() {
                 <main className="flex-1 relative flex justify-center items-start h-full bg-zinc-950 p-4 overflow-hidden">
                     {/* Tool Buttons */}
                     <ToolSelector />
+
+                    <ClassIdSelector />
 
                     {/* Canvas Area */}
                     <div className="max-w-full max-h-full mt-12">

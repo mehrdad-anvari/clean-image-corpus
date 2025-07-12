@@ -38,21 +38,10 @@ export default function AnnotationList() {
 
   const handleSave = () => {
     if (selectedIndex !== null && editValues) {
-      switch (editValues.type) {
-        case 'bbox':
-          if (settings.rectClasses[editValues.class_id]) {
-            dispatch(updateAnnotation({ updatedAnnotation: editValues, Index: selectedIndex }))
-            dispatch(setSelectedClassID(editValues.class_id))
-            dispatch(saveAnnotationsHistory())
-          }
-          break;
-        case 'keypoint':
-          if (settings.pointClasses[editValues.class_id]) {
-            dispatch(updateAnnotation({ updatedAnnotation: editValues, Index: selectedIndex }))
-            dispatch(setSelectedClassID(editValues.class_id))
-            dispatch(saveAnnotationsHistory())
-          }
-          break;
+      if (settings[editValues.type][editValues.class_id]) {
+        dispatch(updateAnnotation({ updatedAnnotation: editValues, Index: selectedIndex }))
+        dispatch(setSelectedClassID(editValues.class_id))
+        dispatch(saveAnnotationsHistory())
       }
     }
   };

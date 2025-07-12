@@ -26,17 +26,16 @@ export function renderCanvas(canvas: HTMLCanvasElement, imageSrc: string, canvas
       } else {
         highlighted_vertex = null
       }
+      color = settings[annotationObj.type][annotation.object.class_id].color
       switch (annotationObj.type) {
         case 'bbox':
-          color = settings.rectClasses[annotation.object.class_id].color
           if (canvasState.selectedTool == 'DRAW_RECT' || canvasState.selectedTool == 'SELECT') {
-            Rectangle.draw(annotationObj, canvas, i === canvasState.selectedAnnotation, null, settings.rectClasses[annotation.object.class_id].color);
+            Rectangle.draw(annotationObj, canvas, i === canvasState.selectedAnnotation, null, color);
           } else {
             Rectangle.draw(annotationObj, canvas, (i === canvasState.hoveringAnnotation) || (i === canvasState.selectedAnnotation), highlighted_vertex, color);
           }
           break;
         case 'keypoint':
-          color = settings.pointClasses[annotation.object.class_id].color
           if (canvasState.selectedTool == 'DRAW_POINT' || canvasState.selectedTool == 'SELECT') {
             Keypoint.draw(annotationObj, canvas, i === canvasState.selectedAnnotation, color);
           } else {
