@@ -22,14 +22,16 @@ export function editPointTool(
         case 'mousedown':
             if (event.button == 0) {
                 if (canvasState.hoveringAnnotation != -1) {
+                    const newClassID = canvasState.annotations[canvasState.hoveringAnnotation].object.class_id
                     switch (canvasState.annotations[canvasState.hoveringAnnotation].object.type) {
                         case 'bbox':
                             dispatch(setSelectedTool('EDIT_RECT'));
-                            dispatch(setSelectedClassID(0))
+                            dispatch(setSelectedClassID(newClassID))
                             dispatch(setIsEditing(true))
                             break;
                         case 'keypoint':
                             dispatch(setSelectedTool('EDIT_POINT'))
+                            dispatch(setSelectedClassID(newClassID))
                             dispatch(setIsEditing(true))
                             break;
                     }

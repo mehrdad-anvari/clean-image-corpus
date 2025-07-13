@@ -24,13 +24,15 @@ export function editRectTool(
                 } else {
                     dispatch(resetSelectedVertex())
                     if (canvasState.hoveringAnnotation != -1) {
+                        const newClassID = canvasState.annotations[canvasState.hoveringAnnotation].object.class_id
                         switch (canvasState.annotations[canvasState.hoveringAnnotation].object.type) {
                             case 'bbox':
                                 dispatch(setSelectedTool('EDIT_RECT'));
+                                dispatch(setSelectedClassID(newClassID))
                                 break;
                             case 'keypoint':
                                 dispatch(setSelectedTool('EDIT_POINT'))
-                                dispatch(setSelectedClassID(0))
+                                dispatch(setSelectedClassID(newClassID))
                                 break;
                         }
                         dispatch(selectAnnotationFromHover())

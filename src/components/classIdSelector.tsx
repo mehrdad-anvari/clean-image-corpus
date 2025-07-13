@@ -5,9 +5,9 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
 const ClassIdTag = ({ name = 'default', color = [255, 255, 255] }) => (
-    <div className="flex flex-row gap-2">
+    <div className="flex flex-row gap-2 items-center">
         <div
-            className="w-10 h-6 shadow-sm"
+            className="w-10 h-4 shadow-sm rounded"
             style={{
                 backgroundColor: `rgb(${color[0]}, ${color[1]}, ${color[2]})`,
             }}
@@ -33,24 +33,48 @@ export default function ClassIdSelector() {
     const selectedClassId = useSelector((state: RootState) => state.canvas.selectedClassID);
     const selectedTool = useSelector((state: RootState) => state.canvas.selectedTool);
     const settings = useSelector((state: RootState) => state.settings);
-    // const [showDropdown, setShowDropdown] = useState(false);
+    const [showDropdown, setShowDropdown] = useState(false);
     const [mode, setMode] = useState('bbox')
     useEffect(() => {
         if (selectedTool != 'SELECT') {
             const newMode = typeMap[selectedTool as SelectedToolType]
             if (mode != newMode) {
                 setMode(newMode as SelectedToolType);
+            }
+
+            if (selectedTool == 'DRAW_RECT' || selectedTool == 'DRAW_POINT') {
                 dispatch(setSelectedClassID(0))
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedTool])
 
-    const name = settings[mode as 'bbox' | 'keypoint'][selectedClassId].name;
-    const color = settings[mode as 'bbox' | 'keypoint'][selectedClassId].color;
+    const targetSettings = settings[mode as 'bbox' | 'keypoint']
+    const name = targetSettings[selectedClassId]?.name;
+    const color = targetSettings[selectedClassId]?.color;
 
     return (
-        <div className="absolute top-18 left-4 z-20 flex gap-2">
+        <div
+            className="absolute top-18 left-4 z-20 flex gap-2"
+            onClick={() => setShowDropdown(!showDropdown)}
+        >
             <ClassIdTag name={name} color={color} />
+            <div
+                className="absolute top-8 z-20 flex-col"
+            >
+
+                {showDropdown && Object.values(targetSettings).map((item, index) => (
+                    <button
+                        key={index}
+                        className={`gap-2 flex-col flex ${index == selectedClassId ? "opacity-100" : "opacity-50"}`}
+                        onClick={() => dispatch(setSelectedClassID(index))}
+                    >
+                        <ClassIdTag name={item.name} color={item.color} />
+                    </button>
+
+                ))}
+            </div>
+
         </div>
     )
 }
