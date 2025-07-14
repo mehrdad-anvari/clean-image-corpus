@@ -21,6 +21,7 @@ export interface CanvasState {
     lastIndex: number,
     historyLastIndex: number,
     zoom: number,
+    offsets: { x: number, y: number },
     isDrawing: boolean,
     isEditing: boolean,
     previousMousePosition: { x: number, y: number } | null,
@@ -41,6 +42,7 @@ const initialState: CanvasState = {
     lastIndex: 0,
     historyLastIndex: 0,
     zoom: 800,
+    offsets: { x: 0, y: 0 },
     isDrawing: false,
     isEditing: false,
     previousMousePosition: null,
@@ -249,6 +251,9 @@ export const canvasSlice = createSlice({
         zoomOut: (state) => {
             state.zoom = Math.max(state.zoom - 50, 400)
         },
+        setOffsets: (state, action: PayloadAction<Point>) => {
+            state.offsets = action.payload
+        },
         resetCanvasState: () => initialState
     }
 })
@@ -259,6 +264,6 @@ export const { startDrawRect, updateDrawRect, updateHoveringAnnotation,
     resetSelectedVertex, saveAnnotationsHistory, setCanvasSize, setSelectedClassID, loadAnnotations,
     resetHistory, setSelectedAnnotation, removeAnnotation, updateAnnotation, setIsDrawing, setIsEditing,
     drawPoint, moveSelectedPoint, setPreviousMousePosition, resetPreviousMousePosition,
-    zoomIn, zoomOut } = canvasSlice.actions
+    zoomIn, zoomOut, setOffsets } = canvasSlice.actions
 
 export default canvasSlice.reducer

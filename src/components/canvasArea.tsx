@@ -81,7 +81,10 @@ export default function CanvasArea({ imageSrc }: Props) {
         onContextMenu={handleContextMenu}
         onWheel={handleWheel}
         tabIndex={0}
-        className="outline-none border border-zinc-700 shadow-md bg-zinc-900 focus:ring-1 focus:ring-blue-500 transition duration-150"
+        className="outline-none border border-zinc-700 shadow-md bg-zinc-900 focus:ring-1 focus:ring-blue-500 "
+        style={{
+          transform: `translate(${canvasState.offsets.x}px, ${canvasState.offsets.y}px)`,
+        }}
       />
     </div>
   );

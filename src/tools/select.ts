@@ -1,7 +1,7 @@
-import { getNormalizedCoords } from "@/lib/utils";
+import { getAbsoluteCoords, getNormalizedCoords } from "@/lib/utils";
 import { Dispatch, Action } from 'redux';
 import {
-    CanvasState, selectAnnotationFromHover, setIsEditing, setSelectedClassID, setSelectedTool,
+    CanvasState, resetPreviousMousePosition, selectAnnotationFromHover, setIsEditing, setOffsets, setPreviousMousePosition, setSelectedClassID, setSelectedTool,
     updateHoveringAnnotation, updateHoveringVertex
 } from "@/features/tools/canvas";
 import { AnnotationSettingsState } from "@/features/tools/settings";
@@ -38,7 +38,11 @@ export function selectTool(
                             break;
                     }
                     dispatch(selectAnnotationFromHover());
+                } else {
+                    const p = getAbsoluteCoords(event)
+                    dispatch(setPreviousMousePosition(p))
                 }
+
             } else if (event.button == 2) {
                 const selectedClassID = canvasState.selectedClassID;
                 const lastIndex = Math.max(...Object.keys(canvasState.annotations).map(Number))
@@ -53,10 +57,22 @@ export function selectTool(
             break;
 
         case 'mouseup':
+            if (canvasState.previousMousePosition) {
+                dispatch(resetPreviousMousePosition())
+            }
             break;
 
         case 'mousemove':
             const newCoords = getNormalizedCoords(event);
+            const p = canvasState.previousMousePosition
+            if (p) {
+                const p2 = getAbsoluteCoords(event);
+                const newOffset = {...canvasState.offsets}
+                newOffset.x = newOffset.x + (p2.x - p.x) 
+                newOffset.y = newOffset.y + (p2.y - p.y) 
+                dispatch(setOffsets(newOffset))
+                dispatch(setPreviousMousePosition(p2))
+            }
             dispatch(updateHoveringAnnotation(newCoords))
             dispatch(updateHoveringVertex(newCoords))
             break;

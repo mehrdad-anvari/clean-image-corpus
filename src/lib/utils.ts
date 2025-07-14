@@ -13,3 +13,9 @@ export function getCoords(e: React.MouseEvent<HTMLCanvasElement>) {
     const y = (e.clientY - rect.top);
     return { x, y };
 };
+
+export function getAbsoluteCoords(e: React.MouseEvent<HTMLCanvasElement>) {
+    const x = e.clientX;
+    const y = e.clientY;
+    return { x, y };
+};
