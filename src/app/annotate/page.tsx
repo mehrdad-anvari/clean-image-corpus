@@ -51,7 +51,7 @@ export default function AnnotatePage() {
         const fileName = replaceLastExtensionWithJson(record.name);
 
         const annotationObjectsList = [];
-        const mystore =  store.getState();
+        const mystore = store.getState();
         const annotations = mystore.canvas.annotations;
         const lastIndex = mystore.canvas.lastIndex
         for (let i = 0; i < lastIndex; i++) {
@@ -203,14 +203,14 @@ export default function AnnotatePage() {
                 </aside>
 
                 {/* Canvas Area */}
-                <main className="flex-1 relative flex justify-center items-start h-full bg-zinc-950 p-4 overflow-hidden">
+                <main className="flex-1 relative items-start h-full w-full bg-zinc-950 overflow-hidden">
                     {/* Tool Buttons */}
+
                     <ToolSelector />
 
                     <ClassIdSelector />
-
                     {/* Canvas Area */}
-                    <div className="max-w-full max-h-full mt-12">
+                    <div className="flex w-full h-full items-center justify-center">
                         <CanvasArea imageSrc={cards[2][1]} />
                     </div>
                 </main>

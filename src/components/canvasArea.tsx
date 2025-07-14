@@ -14,6 +14,7 @@ export default function CanvasArea({ imageSrc }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const dispatch = useAppDispatch()
   const canvasState = useSelector((state: RootState) => state.canvas)
+  const zoom = useSelector((state: RootState) => state.canvas.zoom)
   const settings = useSelector((state: RootState) => state.settings)
 
   useEffect(() => {
@@ -24,7 +25,7 @@ export default function CanvasArea({ imageSrc }: Props) {
 
     const handleImageLoad = () => {
       const maxSize = Math.max(image.width, image.height);
-      const division = maxSize / canvasState.zoom;
+      const division = maxSize / zoom;
       const newWidth = image.width / division;
       const newHeight = image.height / division;
       dispatch(setCanvasSize({ width: newWidth, height: newHeight }))
@@ -35,7 +36,7 @@ export default function CanvasArea({ imageSrc }: Props) {
       image.removeEventListener('load', handleImageLoad);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canvasState, imageSrc]);
+  }, [zoom, imageSrc]);
 
   useEffect(() => {
     if (!imageSrc || !canvasRef.current) return;
@@ -64,8 +65,13 @@ export default function CanvasArea({ imageSrc }: Props) {
     e.preventDefault(); // Prevent the context menu from appearing
   };
 
+  const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
+    e.preventDefault();
+    TaskManager(e, canvasState, settings, dispatch)
+  }
+
   return (
-    <div className="relative w-full h-full flex items-center justify-center bg-zinc-950">
+    <div className="flex justify-center items-center w-full h-full bg-zinc-950">
       <canvas
         ref={canvasRef}
         onMouseDown={handleMouseDown}
@@ -73,8 +79,9 @@ export default function CanvasArea({ imageSrc }: Props) {
         onMouseUp={handleMouseUp}
         onKeyDown={handleKeyboard}
         onContextMenu={handleContextMenu}
+        onWheel={handleWheel}
         tabIndex={0}
-        className="outline-none border border-zinc-700  shadow-md bg-zinc-900 focus:ring-1 focus:ring-blue-500 transition duration-150"
+        className="outline-none border border-zinc-700 shadow-md bg-zinc-900 focus:ring-1 focus:ring-blue-500 transition duration-150"
       />
     </div>
   );

@@ -243,6 +243,12 @@ export const canvasSlice = createSlice({
         setIsEditing: (state, action: PayloadAction<boolean>) => {
             state.isEditing = action.payload
         },
+        zoomIn: (state) => {
+            state.zoom = state.zoom + 50
+        },
+        zoomOut: (state) => {
+            state.zoom = Math.max(state.zoom - 50, 400)
+        },
         resetCanvasState: () => initialState
     }
 })
@@ -252,6 +258,7 @@ export const { startDrawRect, updateDrawRect, updateHoveringAnnotation,
     selectVertexFromHover, setSelectedTool, moveVertex, resetCanvasState, resetSelectedAnnotation,
     resetSelectedVertex, saveAnnotationsHistory, setCanvasSize, setSelectedClassID, loadAnnotations,
     resetHistory, setSelectedAnnotation, removeAnnotation, updateAnnotation, setIsDrawing, setIsEditing,
-    drawPoint, moveSelectedPoint, setPreviousMousePosition, resetPreviousMousePosition } = canvasSlice.actions
+    drawPoint, moveSelectedPoint, setPreviousMousePosition, resetPreviousMousePosition,
+    zoomIn, zoomOut } = canvasSlice.actions
 
 export default canvasSlice.reducer
