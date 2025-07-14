@@ -1,6 +1,32 @@
 import { Vertex, RectangleObject } from "@/interfaces";
 
+function checkValidMove(x: number, y: number, dx: number, dy: number): boolean {
+    if (x + dx < 0 || x + dx > 1 || y + dy < 0 || y + dy > 1)
+        return false
+    return true
+}
+
 class Rectangle {
+
+    static move(rect: RectangleObject, dx: number, dy: number): RectangleObject {
+        let validMove = true;
+        [1, 2, 3, 4].forEach(
+            (value) => {
+                const vertex = this.giveVertex(rect, value)
+                if (vertex && !checkValidMove(vertex.x, vertex.y, dx, dy))
+                    validMove = false
+            }
+        )
+        if (validMove) {
+            const newRect = { ...rect }
+            newRect.x1 = newRect.x1 + dx
+            newRect.x2 = newRect.x2 + dx
+            newRect.y1 = newRect.y1 + dy
+            newRect.y2 = newRect.y2 + dy
+            return newRect
+        }
+        return rect
+    }
 
     static moveVertex(rect: RectangleObject, x: number, y: number, vertex: number | null): RectangleObject | undefined {
         if (vertex == null) { return }

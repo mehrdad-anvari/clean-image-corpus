@@ -23,6 +23,7 @@ export interface CanvasState {
     zoom: number,
     isDrawing: boolean,
     isEditing: boolean,
+    previousMousePosition: { x: number, y: number } | null,
 }
 
 const initialState: CanvasState = {
@@ -42,6 +43,7 @@ const initialState: CanvasState = {
     zoom: 800,
     isDrawing: false,
     isEditing: false,
+    previousMousePosition: null,
 }
 
 export const canvasSlice = createSlice({
@@ -210,10 +212,17 @@ export const canvasSlice = createSlice({
         moveSelectedPoint: (state, action: PayloadAction<Point>) => {
             const p = action.payload;
             const selectedAnnotationObj = state.annotations[state.selectedAnnotation]['object']
-            if (selectedAnnotationObj.type == 'keypoint'){
+            if (selectedAnnotationObj.type == 'keypoint') {
                 const newPoint = Keypoint.move(selectedAnnotationObj, p.x, p.y);
                 state.annotations[state.selectedAnnotation]['object'] = newPoint
             }
+        },
+        setPreviousMousePosition: (state, action: PayloadAction<Point>) => {
+            const p = action.payload;
+            state.previousMousePosition = { x: p.x, y: p.y }
+        },
+        resetPreviousMousePosition: (state) => {
+            state.previousMousePosition = null
         },
         setSelectedTool: (state, action: PayloadAction<string>) => {
             state.selectedTool = action.payload
@@ -243,6 +252,6 @@ export const { startDrawRect, updateDrawRect, updateHoveringAnnotation,
     selectVertexFromHover, setSelectedTool, moveVertex, resetCanvasState, resetSelectedAnnotation,
     resetSelectedVertex, saveAnnotationsHistory, setCanvasSize, setSelectedClassID, loadAnnotations,
     resetHistory, setSelectedAnnotation, removeAnnotation, updateAnnotation, setIsDrawing, setIsEditing,
-    drawPoint, moveSelectedPoint} = canvasSlice.actions
+    drawPoint, moveSelectedPoint, setPreviousMousePosition, resetPreviousMousePosition } = canvasSlice.actions
 
 export default canvasSlice.reducer
