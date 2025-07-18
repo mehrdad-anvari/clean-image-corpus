@@ -47,14 +47,11 @@ export interface RectangleObject {
 export interface OrientedRectangleObject {
   type: 'obb',
   class_id: number,
-  x1: number,
-  y1: number,
-  x2: number,
-  y2: number,
-  x3: number,
-  y3: number,
-  x4: number,
-  y4: number,
+  xc: number,
+  yc: number,
+  w: number,
+  h: number,
+  alpha: number,
 }
 
 export interface PolygonObject {
