@@ -10,9 +10,9 @@ class OrientedRectangle {
 
     static move(obb: OrientedRectangleObject, dx: number, dy: number): OrientedRectangleObject {
         let validMove = true;
-        [1, 2, 3, 4].forEach(
-            (value) => {
-                const vertex = this.getVertex(obb, value as VertexIndex)
+        const vertices = this.getVertices(obb)
+        vertices.forEach(
+            (vertex) => {
                 if (!checkValidMove(vertex.x, vertex.y, dx, dy))
                     validMove = false
             }
@@ -36,24 +36,33 @@ class OrientedRectangle {
 
         const { du, dv } = this.decomposeVector(dx, dy, obb.alpha)
 
-        const w = obb.w + du;
-        const h = obb.h + dv;
+        const direction = this.vertexDirection(vertexIndex); // returns { su: ±1, sv: ±1 }
+
+        const w = Math.abs(obb.w + du * direction.su);
+        const h = Math.abs(obb.h + dv * direction.sv);
 
         const xc = obb.xc + dx / 2;
         const yc = obb.yc + dy / 2;
 
-        const alpha = obb.alpha
- 
-        return {
-            type: 'obb',
-            class_id: obb.class_id,
-            xc,
-            yc,
-            w,
-            h,
-            alpha,
-        };
+        const newObb = {
+            ...obb,
+            xc: xc,
+            yc: yc,
+            w: w,
+            h: h,
+        };        
 
+        return newObb;
+    }
+
+    private static vertexDirection(vertexIndex: number): { su: number; sv: number } {
+        switch (vertexIndex) {
+            case 0: return { su: -1, sv: -1 }; // top-left
+            case 1: return { su: +1, sv: -1 }; // top-right
+            case 2: return { su: +1, sv: +1 }; // bottom-right
+            case 3: return { su: -1, sv: +1 }; // bottom-left
+            default: return { su: 0, sv: 0 };  // center or invalid
+        }
     }
 
     private static decomposeVector(dx: number, dy: number, alpha: number) {
@@ -110,7 +119,7 @@ class OrientedRectangle {
         ctx.rect(x1 - 2, y1 - 2, 4, 4);
         ctx.rect(x2 - 2, y2 - 2, 4, 4);
         ctx.rect(x3 - 2, y3 - 2, 4, 4);
-        if (vertex_index) {
+        if (vertex_index != null) {
             const vertex_position = this.getVertex(obb, vertex_index as VertexIndex);
             if (vertex_position) {
                 ctx.rect(vertex_position.x * width - 5, vertex_position.y * height - 5, 10, 10);
@@ -127,6 +136,7 @@ class OrientedRectangle {
         if (highlight) {
             ctx.fillStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.2)`;
             ctx.fill();
+            ctx.stroke();
         } else {
             ctx.stroke();
         }

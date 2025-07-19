@@ -8,6 +8,8 @@ import { drawPointTool } from "@/tools/drawPoint";
 import { editPointTool } from "@/tools/editPoint";
 import { AnnotationSettingsState } from "@/features/tools/settings";
 import { wheelHandle } from "@/tools/wheel";
+import { drawObbTool } from "@/tools/drawObb";
+import { editObbTool } from "@/tools/editObb";
 
 function isMouseEvent(e: React.MouseEvent<HTMLCanvasElement> | React.KeyboardEvent<HTMLCanvasElement> | React.WheelEvent<HTMLCanvasElement>): e is React.MouseEvent<HTMLCanvasElement> {
     return e.type === 'mousemove' || e.type === 'mousedown' || e.type === 'mouseup';
@@ -22,7 +24,7 @@ function isWheelEvent(e: React.MouseEvent<HTMLCanvasElement> | React.KeyboardEve
 }
 
 export function TaskManager(e: React.MouseEvent<HTMLCanvasElement> | React.KeyboardEvent<HTMLCanvasElement> | React.WheelEvent<HTMLCanvasElement>, canvasState: CanvasState, settings: AnnotationSettingsState, dispatch: Dispatch<Action>) {
-    if (isWheelEvent(e)){
+    if (isWheelEvent(e)) {
         wheelHandle(e, canvasState, settings, dispatch)
     }
     if (isKeyboardEvent(e)) {
@@ -35,10 +37,6 @@ export function TaskManager(e: React.MouseEvent<HTMLCanvasElement> | React.Keybo
                 selectTool(e, canvasState, settings, dispatch);
                 break;
 
-            case 'EDIT_RECT':
-                editRectTool(e, canvasState, settings, dispatch);
-                break;
-
             case 'DRAW_RECT':
                 drawRectTool(e, canvasState, settings, dispatch);
                 break;
@@ -47,8 +45,20 @@ export function TaskManager(e: React.MouseEvent<HTMLCanvasElement> | React.Keybo
                 drawPointTool(e, canvasState, settings, dispatch);
                 break;
 
+            case 'DRAW_OBB':
+                drawObbTool(e, canvasState, settings, dispatch);
+                break;
+
+            case 'EDIT_RECT':
+                editRectTool(e, canvasState, settings, dispatch);
+                break;
+
             case 'EDIT_POINT':
                 editPointTool(e, canvasState, settings, dispatch);
+                break;
+
+            case 'EDIT_OBB':
+                editObbTool(e, canvasState, settings, dispatch)
                 break;
         }
     }

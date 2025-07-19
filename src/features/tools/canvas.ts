@@ -2,7 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import Rectangle from "@/annotations/rectangle";
 import Keypoint from "@/annotations/point";
-import { AnnotationObject, Point, PointObject, RectangleObject } from "@/interfaces";
+import { AnnotationObject, OrientedRectangleObject, Point, PointObject, RectangleObject } from "@/interfaces";
+import OrientedRectangle from "@/annotations/orientedRectangle";
 
 interface AnnotationsSnapshot { [key: number]: { object: AnnotationObject } };
 
@@ -75,6 +76,21 @@ export const canvasSlice = createSlice({
             state.annotations[state.lastIndex] = { object: newRect }
             state.lastIndex += 1
         },
+        startDrawObb: (state, action: PayloadAction<{ classID: number, mousePosition: Point }>) => {
+            const classID = action.payload.classID
+            const p = action.payload.mousePosition
+            const newRect: OrientedRectangleObject = {
+                type: 'obb',
+                class_id: classID,
+                xc: p.x,
+                yc: p.y,
+                w: 0,
+                h: 0,
+                alpha: 0,
+            }
+            state.annotations[state.lastIndex] = { object: newRect }
+            state.lastIndex += 1
+        },
         drawPoint: (state, action: PayloadAction<{ classID: number, mousePosition: Point }>) => {
             const classID = action.payload.classID
             const p = action.payload.mousePosition
@@ -124,6 +140,26 @@ export const canvasSlice = createSlice({
                 y2: p.y,
             }
         },
+        updateDrawObb: (state, action: PayloadAction<Point>) => {
+            const obb = state.annotations[state.lastIndex - 1].object
+            if (obb.type != 'obb') return
+            const p = action.payload
+            const xs = p.x > obb.xc ? obb.xc - obb.w / 2 : obb.xc + obb.w / 2
+            const ys = p.y > obb.yc ? obb.yc - obb.h / 2 : obb.yc + obb.h / 2
+            const newXc = (p.x + xs) / 2
+            const newYc = (p.y + ys) / 2
+            const newW = Math.abs(xs - p.x)
+            const newH = Math.abs(ys - p.y)
+            state.annotations[state.lastIndex - 1].object = {
+                type: 'obb',
+                class_id: obb.class_id,
+                xc: newXc,
+                yc: newYc,
+                w: newW,
+                h: newH,
+                alpha: 0
+            }
+        },
         updateAnnotation: (state, action: PayloadAction<{ updatedAnnotation: AnnotationObject, Index: number }>) => {
             state.annotations[action.payload.Index].object = action.payload.updatedAnnotation
         },
@@ -135,6 +171,9 @@ export const canvasSlice = createSlice({
                     case 'polygon':
                         break
                     case 'obb':
+                        if (OrientedRectangle.containPoint(annotation['object'], p.x, p.y)) {
+                            state.hoveringAnnotation = Number(index)
+                        }
                         break
                     case 'bbox':
                         if (Rectangle.containPoint(annotation['object'], p.x, p.y)) {
@@ -160,6 +199,9 @@ export const canvasSlice = createSlice({
                     case 'polygon':
                         break
                     case 'obb':
+                        const nearestVertexObb = OrientedRectangle.findNearestVertex(selectedAnnotationObj, p.x, p.y)
+                        if (nearestVertexObb != null) { state.hoveringVertex = nearestVertexObb }
+                        else { state.hoveringVertex = -1 }
                         break
                     case 'bbox':
                         const nearestVertex = Rectangle.findNearestVertex(selectedAnnotationObj, p.x, p.y);
@@ -196,6 +238,8 @@ export const canvasSlice = createSlice({
                     case 'polygon':
                         break
                     case 'obb':
+                        const newObb = OrientedRectangle.moveVertex(selectedAnnotationObj, p.x, p.y, state.selectedVertex as 0 | 1 | 2 | 3)
+                        state.annotations[state.selectedAnnotation]['object'] = newObb
                         break
                     case 'bbox':
                         const newRect = Rectangle.moveVertex(selectedAnnotationObj, p.x, p.y, state.selectedVertex)
@@ -264,6 +308,6 @@ export const { startDrawRect, updateDrawRect, updateHoveringAnnotation,
     resetSelectedVertex, saveAnnotationsHistory, setCanvasSize, setSelectedClassID, loadAnnotations,
     resetHistory, setSelectedAnnotation, removeAnnotation, updateAnnotation, setIsDrawing, setIsEditing,
     drawPoint, moveSelectedPoint, setPreviousMousePosition, resetPreviousMousePosition,
-    zoomIn, zoomOut, setOffsets } = canvasSlice.actions
+    zoomIn, zoomOut, setOffsets, startDrawObb, updateDrawObb } = canvasSlice.actions
 
 export default canvasSlice.reducer

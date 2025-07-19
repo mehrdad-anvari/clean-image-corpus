@@ -66,7 +66,7 @@ export default function CanvasArea({ imageSrc }: Props) {
   };
 
   const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
-    e.preventDefault();
+    // e.preventDefault();
     TaskManager(e, canvasState, settings, dispatch)
   }
 

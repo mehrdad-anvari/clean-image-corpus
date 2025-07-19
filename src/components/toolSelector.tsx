@@ -6,19 +6,20 @@ import {
   resetSelectedVertex,
   setSelectedTool,
 } from "@/features/tools/canvas";
-import { Move, Pencil, Edit, Square, CircleDot } from "lucide-react";
+import { Move, Pencil, Edit, Square, CircleDot, Diamond } from "lucide-react";
 import { useAppDispatch } from "@/app/hooks";
 import { useState } from "react";
 
 const drawSubtools = [
   { id: "DRAW_RECT", icon: <Square size={16} /> },
   { id: "DRAW_POINT", icon: <CircleDot size={16} /> },
+  { id: "DRAW_OBB", icon: <Diamond size={16} />}
 ];
 
 export default function ToolSelector() {
   const dispatch = useAppDispatch();
   const selectedTool = useSelector((state: RootState) => state.canvas.selectedTool);
-  const [drawTool, setDrawTool] = useState<"DRAW_RECT" | "DRAW_POINT">("DRAW_RECT");
+  const [drawTool, setDrawTool] = useState<"DRAW_RECT" | "DRAW_POINT" | "DRAW_OBB">("DRAW_RECT");
   const [showDropdown, setShowDropdown] = useState(false);
 
   const handleSelectTool = (id: string) => {
@@ -27,13 +28,13 @@ export default function ToolSelector() {
     dispatch(resetSelectedVertex());
   };
 
-  const handleDrawToolChange = (id: "DRAW_RECT" | "DRAW_POINT") => {
+  const handleDrawToolChange = (id: "DRAW_RECT" | "DRAW_POINT" | "DRAW_OBB") => {
     setDrawTool(id);
     handleSelectTool(id);
     setShowDropdown(false);
   };
 
-  const isEditToolSelected = selectedTool === "EDIT_RECT" || selectedTool === "EDIT_POINT";
+  const isEditToolSelected = selectedTool === "EDIT_RECT" || selectedTool === "EDIT_POINT" || selectedTool === "EDIT_OBB";
 
   return (
     <div className="absolute top-4 left-4 z-20 flex gap-2">
@@ -85,7 +86,7 @@ export default function ToolSelector() {
             {drawSubtools.map(({ id, icon }) => (
               <button
                 key={id}
-                onClick={() => handleDrawToolChange(id as 'DRAW_RECT' | 'DRAW_POINT')}
+                onClick={() => handleDrawToolChange(id as 'DRAW_RECT' | 'DRAW_POINT' | 'DRAW_OBB')}
                 className="w-full h-9 flex items-center gap-2 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-700"
               >
                 {icon}

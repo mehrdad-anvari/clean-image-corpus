@@ -36,6 +36,11 @@ export function selectTool(
                             dispatch(setSelectedClassID(newClassID))
                             dispatch(setIsEditing(true))
                             break;
+                        case 'obb':
+                            dispatch(setSelectedTool('EDIT_OBB'))
+                            dispatch(setSelectedClassID(newClassID))
+                            dispatch(setIsEditing(true))
+                            break;
                     }
                     dispatch(selectAnnotationFromHover());
                 } else {

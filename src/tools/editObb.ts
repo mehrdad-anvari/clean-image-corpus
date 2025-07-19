@@ -12,10 +12,10 @@ import {
 import { Dispatch, Action } from 'redux';
 import { CanvasState } from "@/features/tools/canvas";
 import { AnnotationSettingsState } from "@/features/tools/settings";
-import { RectangleObject } from "@/interfaces";
-import Rectangle from "@/annotations/rectangle";
+import { OrientedRectangleObject } from "@/interfaces";
+import OrientedRectangle from "@/annotations/orientedRectangle";
 
-export function editRectTool(
+export function editObbTool(
     event: React.MouseEvent<HTMLCanvasElement>,
     canvasState: CanvasState,
     settings: AnnotationSettingsState,
@@ -30,10 +30,11 @@ export function editRectTool(
                     dispatch(resetSelectedVertex())
                     if (canvasState.hoveringAnnotation != -1) {
                         if (canvasState.selectedAnnotation == canvasState.hoveringAnnotation &&
-                            canvasState.annotations[canvasState.selectedAnnotation].object.type == 'bbox') {
+                            canvasState.annotations[canvasState.selectedAnnotation].object.type == 'obb') {
                             dispatch(setIsEditing(true))
                             const newCoords = getNormalizedCoords(event);
                             dispatch(setPreviousMousePosition(newCoords))
+                            console.log('start moving')
                         } else {
                             const newClassID = canvasState.annotations[canvasState.hoveringAnnotation].object.class_id
                             switch (canvasState.annotations[canvasState.hoveringAnnotation].object.type) {
@@ -59,17 +60,17 @@ export function editRectTool(
                     }
                 }
             } else if (event.button == 2) {
-                const rectSettings = settings['bbox']
+                const obbSettings = settings['obb']
                 const selectedAnnotationIndex = canvasState.selectedAnnotation
-                const Rect = canvasState.annotations[selectedAnnotationIndex].object
-                const classID = Rect.class_id
-                if (rectSettings[classID + 1]) {
-                    const updatedRect = { ...Rect, class_id: classID + 1 }
-                    dispatch(updateAnnotation({ updatedAnnotation: updatedRect, Index: selectedAnnotationIndex }))
+                const Obb = canvasState.annotations[selectedAnnotationIndex].object
+                const classID = Obb.class_id
+                if (obbSettings[classID + 1]) {
+                    const updatedObb = { ...Obb, class_id: classID + 1 }
+                    dispatch(updateAnnotation({ updatedAnnotation: updatedObb, Index: selectedAnnotationIndex }))
                     dispatch(setSelectedClassID(classID + 1))
                 } else {
-                    const updatedRect = { ...Rect, class_id: 0 }
-                    dispatch(updateAnnotation({ updatedAnnotation: updatedRect, Index: selectedAnnotationIndex }))
+                    const updatedObb = { ...Obb, class_id: 0 }
+                    dispatch(updateAnnotation({ updatedAnnotation: updatedObb, Index: selectedAnnotationIndex }))
                     dispatch(setSelectedClassID(0))
                 }
                 dispatch(saveAnnotationsHistory())
@@ -95,9 +96,9 @@ export function editRectTool(
             if (canvasState.isEditing && canvasState.previousMousePosition) {
                 const dx = newCoords.x - canvasState.previousMousePosition.x
                 const dy = newCoords.y - canvasState.previousMousePosition.y
-                const rect: RectangleObject = canvasState.annotations[canvasState.selectedAnnotation].object as RectangleObject
-                const newRect = Rectangle.move(rect,dx,dy)
-                dispatch(updateAnnotation({updatedAnnotation: newRect, Index: canvasState.selectedAnnotation}))
+                const obb = canvasState.annotations[canvasState.selectedAnnotation].object as OrientedRectangleObject
+                const newObb = OrientedRectangle.move(obb,dx,dy)
+                dispatch(updateAnnotation({updatedAnnotation: newObb, Index: canvasState.selectedAnnotation}))
                 dispatch(setPreviousMousePosition(newCoords))
             }
             dispatch(updateHoveringAnnotation(newCoords))

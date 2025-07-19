@@ -1,3 +1,4 @@
+import OrientedRectangle from "@/annotations/orientedRectangle";
 import Keypoint from "@/annotations/point";
 import Rectangle from "@/annotations/rectangle";
 import { CanvasState } from "@/features/tools/canvas";
@@ -40,6 +41,13 @@ export function renderCanvas(canvas: HTMLCanvasElement, imageSrc: string, canvas
             Keypoint.draw(annotationObj, canvas, i === canvasState.selectedAnnotation, color);
           } else {
             Keypoint.draw(annotationObj, canvas, (i === canvasState.hoveringAnnotation) || (i === canvasState.selectedAnnotation), color);
+          }
+          break;
+        case 'obb':
+          if (canvasState.selectedTool == 'DRAW_OBB' || canvasState.selectedTool == 'SELECT') {
+            OrientedRectangle.draw(annotationObj, canvas, i === canvasState.selectedAnnotation, null, color);
+          } else {
+            OrientedRectangle.draw(annotationObj, canvas, (i === canvasState.hoveringAnnotation) || (i === canvasState.selectedAnnotation), highlighted_vertex, color);
           }
           break;
       }
