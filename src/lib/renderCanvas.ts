@@ -45,9 +45,10 @@ export function renderCanvas(canvas: HTMLCanvasElement, imageSrc: string, canvas
           break;
         case 'obb':
           if (canvasState.selectedTool == 'DRAW_OBB' || canvasState.selectedTool == 'SELECT') {
-            OrientedRectangle.draw(annotationObj, canvas, i === canvasState.selectedAnnotation, null, color);
+            OrientedRectangle.draw(annotationObj, canvas, i === canvasState.selectedAnnotation, null, false, color);
           } else {
-            OrientedRectangle.draw(annotationObj, canvas, (i === canvasState.hoveringAnnotation) || (i === canvasState.selectedAnnotation), highlighted_vertex, color);
+            OrientedRectangle.draw(annotationObj, canvas, (i === canvasState.hoveringAnnotation) || (i === canvasState.selectedAnnotation),
+            highlighted_vertex, (i === canvasState.selectedAnnotation) && (canvasState.isHandleSelected || canvasState.isHoveringHandle), color);
           }
           break;
       }

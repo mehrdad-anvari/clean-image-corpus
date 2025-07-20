@@ -8,6 +8,8 @@ import {
     setIsEditing,
     setPreviousMousePosition,
     resetPreviousMousePosition,
+    updateHoveringHandle,
+    setHandle,
 } from "@/features/tools/canvas";
 import { Dispatch, Action } from 'redux';
 import { CanvasState } from "@/features/tools/canvas";
@@ -26,7 +28,11 @@ export function editObbTool(
             if (event.button == 0) {
                 if (canvasState.hoveringVertex != -1) {
                     dispatch(selectVertexFromHover())
-                } else {
+                } else if (canvasState.isHoveringHandle) {
+                    dispatch(setHandle(true))
+                    dispatch(setIsEditing(true))
+                }
+                else {
                     dispatch(resetSelectedVertex())
                     if (canvasState.hoveringAnnotation != -1) {
                         if (canvasState.selectedAnnotation == canvasState.hoveringAnnotation &&
@@ -87,6 +93,7 @@ export function editObbTool(
                     dispatch(setIsEditing(false))
                     dispatch(resetPreviousMousePosition())
                     dispatch(saveAnnotationsHistory())
+                    dispatch(setHandle(false))
                 }
             }
             break;
@@ -97,12 +104,22 @@ export function editObbTool(
                 const dx = newCoords.x - canvasState.previousMousePosition.x
                 const dy = newCoords.y - canvasState.previousMousePosition.y
                 const obb = canvasState.annotations[canvasState.selectedAnnotation].object as OrientedRectangleObject
-                const newObb = OrientedRectangle.move(obb,dx,dy)
-                dispatch(updateAnnotation({updatedAnnotation: newObb, Index: canvasState.selectedAnnotation}))
+                const newObb = OrientedRectangle.move(obb, dx, dy)
+                dispatch(updateAnnotation({ updatedAnnotation: newObb, Index: canvasState.selectedAnnotation }))
                 dispatch(setPreviousMousePosition(newCoords))
+            }
+
+            if (canvasState.isEditing && canvasState.isHandleSelected) {
+                const obb = canvasState.annotations[canvasState.selectedAnnotation].object as OrientedRectangleObject
+                const dx = newCoords.x - obb.xc
+                const dy = newCoords.y - obb.yc
+                const newAlpha = Math.atan2(dy, dx)
+                const newObb = { ...obb, alpha: newAlpha }
+                dispatch(updateAnnotation({ updatedAnnotation: newObb, Index: canvasState.selectedAnnotation }))
             }
             dispatch(updateHoveringAnnotation(newCoords))
             dispatch(updateHoveringVertex(newCoords))
+            dispatch(updateHoveringHandle(newCoords))
             if (canvasState.selectedVertex != -1) { dispatch(moveVertex(newCoords)) }
             break;
     }

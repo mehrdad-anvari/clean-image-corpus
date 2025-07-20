@@ -25,6 +25,8 @@ export interface CanvasState {
     offsets: { x: number, y: number },
     isDrawing: boolean,
     isEditing: boolean,
+    isHandleSelected: boolean,
+    isHoveringHandle: boolean,
     previousMousePosition: { x: number, y: number } | null,
 }
 
@@ -46,6 +48,8 @@ const initialState: CanvasState = {
     offsets: { x: 0, y: 0 },
     isDrawing: false,
     isEditing: false,
+    isHandleSelected: false,
+    isHoveringHandle: false,
     previousMousePosition: null,
 }
 
@@ -215,6 +219,22 @@ export const canvasSlice = createSlice({
                 }
             }
         },
+        updateHoveringHandle: (state, action: PayloadAction<Point>) => {
+            const p = action.payload;
+            if (state.selectedAnnotation > -1) {
+                const selectedAnnotationObj = state.annotations[state.selectedAnnotation]['object']
+                switch (selectedAnnotationObj.type) {
+                    case 'polygon':
+                        break
+                    case 'obb':
+                        state.isHoveringHandle = OrientedRectangle.isHoveringHandle(selectedAnnotationObj, p.x, p.y)
+                        break
+                }
+            }
+        },
+        setHandle: (state, action: PayloadAction<boolean>) => {
+            state.isHandleSelected = action.payload
+        },
         selectAnnotationFromHover: (state) => {
             state.selectedAnnotation = state.hoveringAnnotation
         },
@@ -308,6 +328,6 @@ export const { startDrawRect, updateDrawRect, updateHoveringAnnotation,
     resetSelectedVertex, saveAnnotationsHistory, setCanvasSize, setSelectedClassID, loadAnnotations,
     resetHistory, setSelectedAnnotation, removeAnnotation, updateAnnotation, setIsDrawing, setIsEditing,
     drawPoint, moveSelectedPoint, setPreviousMousePosition, resetPreviousMousePosition,
-    zoomIn, zoomOut, setOffsets, startDrawObb, updateDrawObb } = canvasSlice.actions
+    zoomIn, zoomOut, setOffsets, startDrawObb, updateDrawObb, updateHoveringHandle, setHandle } = canvasSlice.actions
 
 export default canvasSlice.reducer

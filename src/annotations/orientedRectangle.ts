@@ -50,7 +50,7 @@ class OrientedRectangle {
             yc: yc,
             w: w,
             h: h,
-        };        
+        };
 
         return newObb;
     }
@@ -84,6 +84,13 @@ class OrientedRectangle {
         };
     }
 
+    static isHoveringHandle(obb: OrientedRectangleObject, x: number, y: number, threshold = 0.02) {
+        const handlePoint = this.getHandle(obb)
+        const dist = Math.hypot(handlePoint.x - x, handlePoint.y - y);
+        if (dist < threshold) return true
+        return false
+    }
+
     static findNearestVertex(obb: OrientedRectangleObject, x: number, y: number, threshold = 0.02): number | null {
         const verticies = this.getVertices(obb)
         let nearestVertexIndex: number | null = null;
@@ -98,7 +105,7 @@ class OrientedRectangle {
         return nearestVertexIndex
     }
 
-    static draw(obb: OrientedRectangleObject, canvas: HTMLCanvasElement, highlight: boolean = false, vertex_index: number | null = null, color: number[] = [255, 0, 0]) {
+    static draw(obb: OrientedRectangleObject, canvas: HTMLCanvasElement, highlight: boolean = false, vertex_index: number | null = null, highlightHandle: boolean = false, color: number[] = [255, 0, 0]) {
         const width = canvas.width;
         const height = canvas.height;
         const ctx = canvas.getContext("2d");
@@ -113,8 +120,8 @@ class OrientedRectangle {
 
         ctx.lineWidth = 1;
         ctx.fillStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.9)`;
-        ctx.beginPath();
         // Draw Vertices
+        ctx.beginPath();
         ctx.rect(x0 - 2, y0 - 2, 4, 4);
         ctx.rect(x1 - 2, y1 - 2, 4, 4);
         ctx.rect(x2 - 2, y2 - 2, 4, 4);
@@ -127,7 +134,25 @@ class OrientedRectangle {
             }
         }
         ctx.fill();
+        ctx.closePath()
+        // Draw Handle
+        ctx.beginPath()
+        const handlePoint = this.getHandle(obb)
+        ctx.arc(handlePoint.x * width, handlePoint.y * height, 3, 0, 2 * Math.PI);
+        ctx.fill();
+        if (highlightHandle) {
+            ctx.lineWidth = 2;
+            ctx.arc(handlePoint.x * width, handlePoint.y * height, 6, 0, 2 * Math.PI);
+            ctx.stroke();
+        }
+        ctx.setLineDash([3, 6])
+        ctx.moveTo(obb.xc * width, obb.yc * height)
+        ctx.lineTo(handlePoint.x * width, handlePoint.y * height)
+        ctx.stroke()
+        ctx.closePath()
         // Draw Oriented Bounding Box
+        ctx.beginPath();
+        ctx.setLineDash([])
         ctx.moveTo(x0, y0)
         ctx.lineTo(x1, y1)
         ctx.lineTo(x2, y2)
@@ -161,6 +186,16 @@ class OrientedRectangle {
             Math.abs(dw) <= obb.w / 2 &&
             Math.abs(dh) <= obb.h / 2
         );
+    }
+
+    static getHandle(obb: OrientedRectangleObject): Vertex {
+        const cos = Math.cos(obb.alpha)
+        const sin = Math.sin(obb.alpha)
+        const xc = obb.xc
+        const yc = obb.yc
+        const L = obb.w / 3
+
+        return { x: xc + L * cos, y: yc + L * sin }
     }
 
     static getVertex(obb: OrientedRectangleObject, index: VertexIndex): Vertex {
