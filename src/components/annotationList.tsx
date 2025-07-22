@@ -8,6 +8,7 @@ import { removeAnnotation, saveAnnotationsHistory, setSelectedAnnotation, setSel
 export default function AnnotationList() {
   const dispatch = useAppDispatch();
   const selectedIndex = useSelector((state: RootState) => state.canvas.selectedAnnotation, shallowEqual)
+  const selectedVertexIndex = useSelector((state: RootState) => state.canvas.selectedVertex, shallowEqual)
   const annotationsHistory = useSelector((state: RootState) => state.canvas.annotationsHistory, shallowEqual)
   const historyIndex = useSelector((state: RootState) => state.canvas.historyIndex, shallowEqual)
   const settings = useSelector((state: RootState) => state.settings, shallowEqual)
@@ -15,6 +16,7 @@ export default function AnnotationList() {
   const annotations = annotationsHistory[historyIndex].annotations
   const entries = useMemo(() => Object.entries(annotations), [annotations]);
   const selectedObject = (selectedIndex !== -1 ? annotations[selectedIndex]?.object : null)
+  const selectedVertex = selectedObject?.type === 'polygon' ? selectedObject.shell[selectedVertexIndex] : null;
 
   const [editValues, setEditValues] = useState<AnnotationObject | null>(
     selectedObject ? { ...selectedObject } : null
@@ -98,20 +100,39 @@ export default function AnnotationList() {
         </div>
         {selectedObject && editValues && (
           <div className="p-4 flex flex-col gap-2 text-xs bg-zinc-900">
-            {(Object.keys(editValues) as (keyof typeof editValues)[]).map((key) => (
-              <label key={key} className="flex justify-between items-center gap-2">
-                <span className="text-zinc-400">{key}</span>
-                {(key == "type") ? <span
-                  className="bg-zinc-800 text-zinc-100 px-2 py-1 text-left w-24 ">
-                  {editValues.type}
-                </span> : <input
-                  type="number"
-                  value={editValues[key]}
-                  onChange={(e) => handleChange(key, parseFloat(e.target.value))}
-                  className="bg-zinc-800 text-zinc-100 px-2 py-1 text-left w-24 border border-zinc-600 focus:outline-none focus:ring focus:ring-blue-500"
-                />}
-              </label>
-            ))}
+            {(Object.entries(editValues))
+              .map(([key, value]) => {
+                if (editValues.type === 'polygon' && key === 'shell') return null;
+                return (
+                  <label key={key} className="flex justify-between items-center gap-2">
+                    <span className="text-zinc-400">{key}</span>
+                    {(key == "type") ? <span
+                      className="bg-zinc-800 text-zinc-100 px-2 py-1 text-left w-24 ">
+                      {editValues.type}
+                    </span> : <input
+                      type="number"
+                      value={value as number}
+                      onChange={(e) => handleChange(key, parseFloat(e.target.value))}
+                      className="bg-zinc-800 text-zinc-100 px-2 py-1 text-left w-24 border border-zinc-600 focus:outline-none focus:ring focus:ring-blue-500"
+                    />}
+                  </label>
+                )
+              })}
+            {
+              editValues.type === "polygon" && selectedIndex !== -1 && selectedVertex && (
+                <div className="flex flex-col gap-1 text-xs mt-2">
+                  <span className="text-zinc-400">Selected Vertex</span>
+                  <div className="flex justify-between">
+                    <span className="text-zinc-500">x:</span>
+                    <span className="text-zinc-100">{selectedVertex.x.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-zinc-500">y:</span>
+                    <span className="text-zinc-100">{selectedVertex.y.toFixed(2)}</span>
+                  </div>
+                </div>
+              )
+            }
             <button
               onClick={handleSave}
               className="mt-2 w-full py-1 bg-blue-600 text-white hover:bg-blue-700 transition"
