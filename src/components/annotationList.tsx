@@ -40,7 +40,7 @@ export default function AnnotationList() {
 
   const handleSave = () => {
     if (selectedIndex !== null && editValues) {
-      if (settings[editValues.type][editValues.class_id]) {
+      if (editValues.type != 'polygon' && settings[editValues.type][editValues.class_id]) {
         dispatch(updateAnnotation({ updatedAnnotation: editValues, Index: selectedIndex }))
         dispatch(setSelectedClassID(editValues.class_id))
         dispatch(saveAnnotationsHistory())
