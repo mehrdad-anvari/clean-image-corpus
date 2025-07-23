@@ -49,12 +49,16 @@ export function renderCanvas(canvas: HTMLCanvasElement, imageSrc: string, canvas
             OrientedRectangle.draw(annotationObj, canvas, i === canvasState.selectedAnnotation, null, false, color);
           } else {
             OrientedRectangle.draw(annotationObj, canvas, (i === canvasState.hoveringAnnotation) || (i === canvasState.selectedAnnotation),
-            highlighted_vertex, (i === canvasState.selectedAnnotation) && (canvasState.isHandleSelected || canvasState.isHoveringHandle), color);
+              highlighted_vertex, (i === canvasState.selectedAnnotation) && (canvasState.isHandleSelected || canvasState.isHoveringHandle), color);
           }
           break;
         case 'polygon':
           if (canvasState.selectedTool == 'DRAW_POLY' || canvasState.selectedTool == 'SELECT') {
-            Polygon.draw(annotationObj, canvas, i === canvasState.selectedAnnotation, null, color);
+            const shellLen = annotationObj.shell.length
+            if (shellLen > 3 && annotationObj.shell[0].x == annotationObj.shell[shellLen - 1].x && annotationObj.shell[0].y == annotationObj.shell[shellLen - 1].y)
+              highlighted_vertex = 0;
+            else highlighted_vertex = null
+            Polygon.draw(annotationObj, canvas, i === canvasState.selectedAnnotation, highlighted_vertex, color);
           } else {
             Polygon.draw(annotationObj, canvas, (i === canvasState.hoveringAnnotation) || (i === canvasState.selectedAnnotation), highlighted_vertex, color);
           }
