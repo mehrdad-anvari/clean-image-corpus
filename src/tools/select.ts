@@ -1,7 +1,7 @@
 import { getAbsoluteCoords, getNormalizedCoords } from "@/lib/utils";
 import { Dispatch, Action } from 'redux';
 import {
-    CanvasState, resetPreviousMousePosition, selectAnnotationFromHover, setIsEditing, setOffsets, setPreviousMousePosition, setSelectedClassID, setSelectedTool,
+    CanvasState, resetPreviousMousePosition, selectAnnotationFromHover, setOffsets, setPreviousMousePosition, setSelectedClassID, setSelectedTool,
     updateHoveringAnnotation, updateHoveringVertex
 } from "@/features/tools/canvas";
 import { AnnotationSettingsState } from "@/features/tools/settings";
@@ -29,22 +29,18 @@ export function selectTool(
                         case 'bbox':
                             dispatch(setSelectedTool('EDIT_RECT'));
                             dispatch(setSelectedClassID(newClassID))
-                            dispatch(setIsEditing(true))
                             break;
                         case 'keypoint':
                             dispatch(setSelectedTool('EDIT_POINT'))
                             dispatch(setSelectedClassID(newClassID))
-                            dispatch(setIsEditing(true))
                             break;
                         case 'obb':
                             dispatch(setSelectedTool('EDIT_OBB'))
                             dispatch(setSelectedClassID(newClassID))
-                            dispatch(setIsEditing(true))
                             break;
                         case 'polygon':
                             dispatch(setSelectedTool('EDIT_POLY'))
                             dispatch(setSelectedClassID(newClassID))
-                            dispatch(setIsEditing(true))
                             break;
                     }
                     dispatch(selectAnnotationFromHover());

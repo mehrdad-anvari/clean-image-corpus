@@ -2,8 +2,11 @@
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
 import {
+  resetHoveringVertex,
   resetSelectedAnnotation,
   resetSelectedVertex,
+  setIsDrawing,
+  setIsEditing,
   setSelectedTool,
 } from "@/features/tools/canvas";
 import { Move, Pencil, Edit, Square, CircleDot, Diamond, Pentagon } from "lucide-react";
@@ -27,6 +30,9 @@ export default function ToolSelector() {
     dispatch(setSelectedTool(id));
     dispatch(resetSelectedAnnotation());
     dispatch(resetSelectedVertex());
+    dispatch(setIsDrawing(false))
+    dispatch(setIsEditing(false))
+    dispatch(resetHoveringVertex())
   };
 
   const handleDrawToolChange = (id: "DRAW_RECT" | "DRAW_POINT" | "DRAW_OBB" | "DRAW_POLY") => {

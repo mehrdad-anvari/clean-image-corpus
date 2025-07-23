@@ -27,7 +27,6 @@ export function editPointTool(
                         case 'bbox':
                             dispatch(setSelectedTool('EDIT_RECT'));
                             dispatch(setSelectedClassID(newClassID))
-                            dispatch(setIsEditing(true))
                             break;
                         case 'keypoint':
                             dispatch(setSelectedTool('EDIT_POINT'))
@@ -37,7 +36,6 @@ export function editPointTool(
                         case 'obb':
                             dispatch(setSelectedTool('EDIT_OBB'))
                             dispatch(setSelectedClassID(newClassID))
-                            dispatch(setIsEditing(true))
                             break;
                         case 'polygon':
                             dispatch(setSelectedTool('EDIT_POLY'))

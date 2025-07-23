@@ -348,6 +348,9 @@ export const canvasSlice = createSlice({
         setOffsets: (state, action: PayloadAction<Point>) => {
             state.offsets = action.payload
         },
+        resetHoveringVertex: (state) => {
+            state.hoveringVertex = -1
+        },
         resetCanvasState: () => initialState
     }
 })
@@ -359,6 +362,6 @@ export const { startDrawRect, updateDrawRect, updateHoveringAnnotation,
     resetHistory, setSelectedAnnotation, removeAnnotation, updateAnnotation, setIsDrawing, setIsEditing,
     drawPoint, moveSelectedPoint, setPreviousMousePosition, resetPreviousMousePosition,
     zoomIn, zoomOut, setOffsets, startDrawObb, updateDrawObb, updateHoveringHandle, setHandle,
-    startDrawPoly, updateDrawPoly, updateDrawPolyVertex } = canvasSlice.actions
+    startDrawPoly, updateDrawPoly, updateDrawPolyVertex, resetHoveringVertex } = canvasSlice.actions
 
 export default canvasSlice.reducer
