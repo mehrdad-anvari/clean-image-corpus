@@ -28,7 +28,6 @@ class Polygon {
             const highlightedVertex = poly.shell[vertexIndex]
             if (highlightedVertex) {
                 ctx.rect(highlightedVertex.x * width - 5, highlightedVertex.y * height - 5, 10, 10);
-
             }
             ctx.stroke()
         }
@@ -47,10 +46,8 @@ class Polygon {
         if (highlight) {
             ctx.fillStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.2)`;
             ctx.fill();
-            ctx.stroke();
-        } else {
-            ctx.stroke();
-        }
+        } 
+        ctx.stroke();
     }
 
     static addVertex(poly: PolygonObject, x: number, y: number, index: number = -1): PolygonObject {

@@ -87,6 +87,7 @@ class Rectangle {
         const w2 = x2 - x1;
         const h2 = y2 - y1;
 
+        // Draw Vertices
         ctx.beginPath();
         ctx.lineWidth = 1;
         ctx.fillStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.9)`;
@@ -94,22 +95,26 @@ class Rectangle {
         ctx.rect(x1 - 2, y2 - 2, 4, 4);
         ctx.rect(x2 - 2, y1 - 2, 4, 4);
         ctx.rect(x2 - 2, y2 - 2, 4, 4);
+        ctx.fill();
         if (vertex_index) {
             const vertex_position = this.giveVertex(rect, vertex_index);
             if (vertex_position) {
                 ctx.rect(vertex_position.x * width - 5, vertex_position.y * height - 5, 10, 10);
 
             }
+            ctx.stroke()
         }
-        ctx.fill();
+        ctx.closePath()
+        
+        // Draw Bounding Box
+        ctx.beginPath()
         ctx.rect(x1, y1, w2, h2);
         if (highlight) {
             ctx.fillStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.2)`;
             ctx.fill();
-            ctx.stroke();
-        } else {
-            ctx.stroke();
-        }
+        } 
+        ctx.stroke();
+        ctx.closePath()
     }
 
     static containPoint(rect: RectangleObject, x: number, y: number) {

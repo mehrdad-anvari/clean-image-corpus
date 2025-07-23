@@ -126,22 +126,24 @@ class OrientedRectangle {
         ctx.rect(x1 - 2, y1 - 2, 4, 4);
         ctx.rect(x2 - 2, y2 - 2, 4, 4);
         ctx.rect(x3 - 2, y3 - 2, 4, 4);
+        ctx.fill();
         if (vertex_index != null) {
             const vertex_position = this.getVertex(obb, vertex_index as VertexIndex);
             if (vertex_position) {
                 ctx.rect(vertex_position.x * width - 5, vertex_position.y * height - 5, 10, 10);
 
             }
+            ctx.stroke();
         }
-        ctx.fill();
         ctx.closePath()
         // Draw Handle
         ctx.beginPath()
         const handlePoint = this.getHandle(obb)
         ctx.arc(handlePoint.x * width, handlePoint.y * height, 3, 0, 2 * Math.PI);
         ctx.fill();
+        ctx.beginPath()
         if (highlightHandle) {
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 1;
             ctx.arc(handlePoint.x * width, handlePoint.y * height, 6, 0, 2 * Math.PI);
             ctx.stroke();
         }
@@ -161,10 +163,8 @@ class OrientedRectangle {
         if (highlight) {
             ctx.fillStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.2)`;
             ctx.fill();
-            ctx.stroke();
-        } else {
-            ctx.stroke();
-        }
+        } 
+        ctx.stroke();
     }
 
     static containPoint(obb: OrientedRectangleObject, x: number, y: number): boolean {

@@ -27,6 +27,7 @@ class Keypoint {
         ctx.fillStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.9)`;
         ctx.arc(x, y, 3, 0, 2 * Math.PI);
         ctx.fill();
+        ctx.closePath()
 
         if (highlight) {
             ctx.beginPath();
@@ -34,6 +35,7 @@ class Keypoint {
             ctx.lineWidth = 2;
             ctx.arc(x, y, 6, 0, 2 * Math.PI);
             ctx.stroke();
+            ctx.closePath()
         }
     }
 }
