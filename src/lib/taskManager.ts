@@ -10,6 +10,8 @@ import { AnnotationSettingsState } from "@/features/tools/settings";
 import { wheelHandle } from "@/tools/wheel";
 import { drawObbTool } from "@/tools/drawObb";
 import { editObbTool } from "@/tools/editObb";
+import { drawPolyTool } from "@/tools/drawPoly";
+import { editPolyTool } from "@/tools/editPoly";
 
 function isMouseEvent(e: React.MouseEvent<HTMLCanvasElement> | React.KeyboardEvent<HTMLCanvasElement> | React.WheelEvent<HTMLCanvasElement>): e is React.MouseEvent<HTMLCanvasElement> {
     return e.type === 'mousemove' || e.type === 'mousedown' || e.type === 'mouseup';
@@ -45,6 +47,10 @@ export function TaskManager(e: React.MouseEvent<HTMLCanvasElement> | React.Keybo
                 drawPointTool(e, canvasState, settings, dispatch);
                 break;
 
+            case 'DRAW_POLY':
+                drawPolyTool(e, canvasState, settings, dispatch);
+                break;
+
             case 'DRAW_OBB':
                 drawObbTool(e, canvasState, settings, dispatch);
                 break;
@@ -59,6 +65,10 @@ export function TaskManager(e: React.MouseEvent<HTMLCanvasElement> | React.Keybo
 
             case 'EDIT_OBB':
                 editObbTool(e, canvasState, settings, dispatch)
+                break;
+
+            case 'EDIT_POLY':
+                editPolyTool(e, canvasState, settings, dispatch);
                 break;
         }
     }

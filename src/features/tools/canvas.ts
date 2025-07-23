@@ -2,8 +2,9 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import Rectangle from "@/annotations/rectangle";
 import Keypoint from "@/annotations/point";
-import { AnnotationObject, OrientedRectangleObject, Point, PointObject, RectangleObject } from "@/interfaces";
+import { AnnotationObject, OrientedRectangleObject, Point, PointObject, PolygonObject, RectangleObject, Vertex } from "@/interfaces";
 import OrientedRectangle from "@/annotations/orientedRectangle";
+import Polygon from "@/annotations/polygon";
 
 interface AnnotationsSnapshot { [key: number]: { object: AnnotationObject } };
 
@@ -95,6 +96,18 @@ export const canvasSlice = createSlice({
             state.annotations[state.lastIndex] = { object: newRect }
             state.lastIndex += 1
         },
+        startDrawPoly: (state, action: PayloadAction<{ classID: number, mousePosition: Point }>) => {
+            const classID = action.payload.classID
+            const p = action.payload.mousePosition
+            const newPoly: PolygonObject = {
+                type: 'polygon',
+                class_id: classID,
+                shell: [{ x: p.x, y: p.y } as Vertex, { x: p.x, y: p.y } as Vertex]
+            }
+            state.annotations[state.lastIndex] = { object: newPoly }
+            state.selectedAnnotation = state.lastIndex
+            state.lastIndex += 1
+        },
         drawPoint: (state, action: PayloadAction<{ classID: number, mousePosition: Point }>) => {
             const classID = action.payload.classID
             const p = action.payload.mousePosition
@@ -164,6 +177,18 @@ export const canvasSlice = createSlice({
                 alpha: 0
             }
         },
+        updateDrawPoly: (state, action: PayloadAction<Point>) => {
+            const poly = state.annotations[state.lastIndex - 1].object
+            if (poly.type != 'polygon') return
+            const p = action.payload
+            state.annotations[state.lastIndex - 1].object = Polygon.addVertex(poly, p.x, p.y)
+        },
+        updateDrawPolyVertex: (state, action: PayloadAction<Point>) => {
+            const poly = state.annotations[state.lastIndex - 1].object
+            if (poly.type != 'polygon') return
+            const p = action.payload
+            state.annotations[state.lastIndex - 1].object = Polygon.moveVertex(poly, p.x, p.y)
+        },
         updateAnnotation: (state, action: PayloadAction<{ updatedAnnotation: AnnotationObject, Index: number }>) => {
             state.annotations[action.payload.Index].object = action.payload.updatedAnnotation
         },
@@ -173,6 +198,9 @@ export const canvasSlice = createSlice({
             for (const [index, annotation] of Object.entries(state.annotations)) {
                 switch (annotation['object'].type) {
                     case 'polygon':
+                        if (Polygon.containPoint(annotation['object'], p.x, p.y)) {
+                            state.hoveringAnnotation = Number(index)
+                        }
                         break
                     case 'obb':
                         if (OrientedRectangle.containPoint(annotation['object'], p.x, p.y)) {
@@ -199,24 +227,24 @@ export const canvasSlice = createSlice({
             const p = action.payload;
             if (state.selectedAnnotation > -1) {
                 const selectedAnnotationObj = state.annotations[state.selectedAnnotation]['object']
+                let nearestVertex = null;
                 switch (selectedAnnotationObj.type) {
                     case 'polygon':
+                        nearestVertex = Polygon.findNearestVertex(selectedAnnotationObj, p.x, p.y)
                         break
                     case 'obb':
-                        const nearestVertexObb = OrientedRectangle.findNearestVertex(selectedAnnotationObj, p.x, p.y)
-                        if (nearestVertexObb != null) { state.hoveringVertex = nearestVertexObb }
-                        else { state.hoveringVertex = -1 }
+                        nearestVertex = OrientedRectangle.findNearestVertex(selectedAnnotationObj, p.x, p.y)
                         break
                     case 'bbox':
-                        const nearestVertex = Rectangle.findNearestVertex(selectedAnnotationObj, p.x, p.y);
-                        if (nearestVertex != null) { state.hoveringVertex = nearestVertex }
-                        else { state.hoveringVertex = -1 }
+                        nearestVertex = Rectangle.findNearestVertex(selectedAnnotationObj, p.x, p.y);
                         break;
                     case 'line':
                         break
                     case 'keypoint':
                         break
                 }
+                if (nearestVertex != null) { state.hoveringVertex = nearestVertex }
+                else { state.hoveringVertex = -1 }
             }
         },
         updateHoveringHandle: (state, action: PayloadAction<Point>) => {
@@ -256,6 +284,8 @@ export const canvasSlice = createSlice({
                 const selectedAnnotationObj = state.annotations[state.selectedAnnotation]['object']
                 switch (selectedAnnotationObj.type) {
                     case 'polygon':
+                        const newPoly = Polygon.moveVertex(selectedAnnotationObj, p.x, p.y, state.selectedVertex)
+                        state.annotations[state.selectedAnnotation]['object'] = newPoly
                         break
                     case 'obb':
                         const newObb = OrientedRectangle.moveVertex(selectedAnnotationObj, p.x, p.y, state.selectedVertex as 0 | 1 | 2 | 3)
@@ -328,6 +358,7 @@ export const { startDrawRect, updateDrawRect, updateHoveringAnnotation,
     resetSelectedVertex, saveAnnotationsHistory, setCanvasSize, setSelectedClassID, loadAnnotations,
     resetHistory, setSelectedAnnotation, removeAnnotation, updateAnnotation, setIsDrawing, setIsEditing,
     drawPoint, moveSelectedPoint, setPreviousMousePosition, resetPreviousMousePosition,
-    zoomIn, zoomOut, setOffsets, startDrawObb, updateDrawObb, updateHoveringHandle, setHandle } = canvasSlice.actions
+    zoomIn, zoomOut, setOffsets, startDrawObb, updateDrawObb, updateHoveringHandle, setHandle,
+    startDrawPoly, updateDrawPoly, updateDrawPolyVertex } = canvasSlice.actions
 
 export default canvasSlice.reducer

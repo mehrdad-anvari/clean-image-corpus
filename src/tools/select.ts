@@ -41,6 +41,11 @@ export function selectTool(
                             dispatch(setSelectedClassID(newClassID))
                             dispatch(setIsEditing(true))
                             break;
+                        case 'polygon':
+                            dispatch(setSelectedTool('EDIT_POLY'))
+                            dispatch(setSelectedClassID(newClassID))
+                            dispatch(setIsEditing(true))
+                            break;
                     }
                     dispatch(selectAnnotationFromHover());
                 } else {

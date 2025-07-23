@@ -49,6 +49,10 @@ export function editRectTool(
                                     dispatch(setSelectedTool('EDIT_OBB'))
                                     dispatch(setSelectedClassID(newClassID))
                                     break;
+                                case 'polygon':
+                                    dispatch(setSelectedTool('EDIT_POLY'))
+                                    dispatch(setSelectedClassID(newClassID))
+                                    break;
                             }
                             dispatch(selectAnnotationFromHover())
                         }

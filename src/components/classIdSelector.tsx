@@ -22,13 +22,15 @@ const typeMap = {
     'DRAW_RECT': 'bbox',
     'DRAW_POINT': 'keypoint',
     'DRAW_OBB': 'obb',
+    'DRAW_POLY': 'polygon',
     'EDIT_RECT': 'bbox',
     'EDIT_POINT': 'keypoint',
     'EDIT_OBB': 'obb',
+    'EDIT_POLY': 'polygon',
     'SELECT': '',
 }
 
-type SelectedToolType = 'DRAW_RECT' | 'DRAW_POINT' | 'DRAW_OBB' | 'EDIT_OBB' | 'EDIT_RECT' | 'EDIT_POINT' | 'SELECT'
+type SelectedToolType = 'DRAW_RECT' | 'DRAW_POINT' | 'DRAW_OBB' | 'DRAW_POLY' | 'EDIT_OBB' | 'EDIT_RECT' | 'EDIT_POINT' | 'EDIT_POLY' | 'SELECT'
 
 export default function ClassIdSelector() {
     const dispatch = useAppDispatch();
@@ -44,14 +46,14 @@ export default function ClassIdSelector() {
                 setMode(newMode as SelectedToolType);
             }
 
-            if (selectedTool == 'DRAW_RECT' || selectedTool == 'DRAW_POINT' || selectedTool == 'DRAW_OBB') {
+            if (selectedTool == 'DRAW_RECT' || selectedTool == 'DRAW_POINT' || selectedTool == 'DRAW_OBB' || selectedTool == 'DRAW_POLY') {
                 dispatch(setSelectedClassID(0))
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedTool])
 
-    const targetSettings = settings[mode as 'bbox' | 'keypoint' | 'obb']
+    const targetSettings = settings[mode as 'bbox' | 'keypoint' | 'obb' | 'polygon']
     const name = targetSettings[selectedClassId]?.name;
     const color = targetSettings[selectedClassId]?.color;
 

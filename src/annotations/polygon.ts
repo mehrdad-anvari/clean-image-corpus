@@ -14,7 +14,7 @@ class Polygon {
         const ctx = canvas.getContext("2d");
         if (ctx == null) { return }
         ctx.strokeStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}, 1)`;
-        ctx.fillStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.9)`;
+        ctx.fillStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}, 1)`;
         ctx.lineWidth = 1;
 
         // Draw Vertices
@@ -30,6 +30,7 @@ class Polygon {
                 ctx.rect(highlightedVertex.x * width - 5, highlightedVertex.y * height - 5, 10, 10);
 
             }
+            ctx.stroke()
         }
         ctx.closePath()
 
@@ -52,13 +53,19 @@ class Polygon {
         }
     }
 
-    static addVertex(poly: PolygonObject, x: number, y: number, index: number): PolygonObject {
+    static addVertex(poly: PolygonObject, x: number, y: number, index: number = -1): PolygonObject {
+        if (index == -1) {
+            return { ...poly, shell: [...poly.shell, { x, y } as Vertex] }
+        }
         const newShell = [...poly.shell.slice(0, index), { x, y } as Vertex, ...poly.shell.slice(index)]
         return { ...poly, shell: newShell }
     }
 
-    static moveVertex(poly: PolygonObject, x: number, y: number, vertexIndex: number): PolygonObject {
+    static moveVertex(poly: PolygonObject, x: number, y: number, vertexIndex: number = -1): PolygonObject {
         const newShell = [...poly.shell]
+        if (vertexIndex == -1) {
+            vertexIndex = newShell.length - 1
+        }
         if (newShell[vertexIndex])
             newShell[vertexIndex] = { x, y }
         return { ...poly, shell: newShell }
@@ -75,6 +82,19 @@ class Polygon {
             }
         });
         return nearestVertexIndex
+    }
+
+    static isNearVertex(poly: PolygonObject, x: number, y: number, index: number, threshold = 0.02): boolean{
+        const vertex = poly.shell[index]
+        if (vertex == undefined) {
+            return false
+        }
+
+        const dist = Math.hypot(vertex.x - x, vertex.y - y);
+        if (dist < threshold) {
+            return true
+        }
+        return false
     }
 
     static containPoint(poly: PolygonObject, x: number, y: number): boolean {

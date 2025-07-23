@@ -39,6 +39,10 @@ export function editPointTool(
                             dispatch(setSelectedClassID(newClassID))
                             dispatch(setIsEditing(true))
                             break;
+                        case 'polygon':
+                            dispatch(setSelectedTool('EDIT_POLY'))
+                            dispatch(setSelectedClassID(newClassID))
+                            break;
                     }
                     dispatch(selectAnnotationFromHover())
                 } else {
