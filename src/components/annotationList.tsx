@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { AnnotationObject } from "@/interfaces";
+import { AnnotationObject, Vertex } from "@/interfaces";
 import { useAppDispatch } from "@/app/hooks";
 import { useSelector, shallowEqual } from "react-redux";
 import { RootState } from "@/app/store";
@@ -16,16 +16,30 @@ export default function AnnotationList() {
   const annotations = annotationsHistory[historyIndex].annotations
   const entries = useMemo(() => Object.entries(annotations), [annotations]);
   const selectedObject = (selectedIndex !== -1 ? annotations[selectedIndex]?.object : null)
-  const selectedVertex = selectedObject?.type === 'polygon' ? selectedObject.shell[selectedVertexIndex] : null;
+  const [selectedVertex, setSelectedVertex] = useState<Vertex | null>(null)
+  const [previousVertexIndex, setPreviousVertexIndex] = useState(-1)
+
 
   const [editValues, setEditValues] = useState<AnnotationObject | null>(
     selectedObject ? { ...selectedObject } : null
   );
 
   useEffect(() => {
-    if (selectedObject)
+    if (selectedObject) {
       setEditValues({ ...selectedObject })
-  }, [selectedObject])
+      if (selectedObject.type === 'polygon') {
+        if (selectedVertexIndex != -1) {
+          const newSelectedVertex = selectedObject.shell[selectedVertexIndex];
+          setSelectedVertex(newSelectedVertex)
+          setPreviousVertexIndex(selectedVertexIndex)
+        } else if (previousVertexIndex != -1) {
+          const newSelectedVertex = selectedObject.shell[previousVertexIndex];
+          setSelectedVertex(newSelectedVertex)
+        }
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedObject, selectedVertexIndex])
 
   const handleSelect = (id: number) => {
     dispatch(setSelectedAnnotation(id))
