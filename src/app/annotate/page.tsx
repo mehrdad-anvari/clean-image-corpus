@@ -91,16 +91,16 @@ export default function AnnotatePage() {
         }
     }
 
-    async function handleLoadImages() {
+    async function handleLoadImages(index: number) {
         if (!db) return;
         const newImagesLen = await countImages(db);
         setImagesLen(newImagesLen);
-        await moveCurrentIndex(0, newImagesLen, db, imagesDirHandle, 0);
+        await moveCurrentIndex(index, newImagesLen, db, imagesDirHandle, 0);
     }
 
     useEffect(() => {
         try {
-            handleLoadImages()
+            handleLoadImages(0)
         } catch (error) {
             console.log('error in loading images. error:', error)
         }
@@ -114,6 +114,7 @@ export default function AnnotatePage() {
         await saveIndexedDBToFile(db, rootDirHandle);
         const newImagesLen = await countImages(db);
         setImagesLen(newImagesLen);
+        handleLoadImages(currentIndex)
     }
 
     async function handleExport() {
