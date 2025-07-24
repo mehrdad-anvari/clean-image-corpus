@@ -91,7 +91,6 @@ export default function AnnotatePage() {
         }
     }
 
-
     async function handleLoadImages() {
         if (!db) return;
         const newImagesLen = await countImages(db);
@@ -181,7 +180,6 @@ export default function AnnotatePage() {
             {/* Header */}
             <header className="bg-zinc-900 border-b border-zinc-700 px-4 py-3 shadow-md">
                 <Toolbar
-                    onLoadImages={handleLoadImages}
                     onSync={handleSync}
                     onSettings={toggleModal}
                     onExport={handleExport}
