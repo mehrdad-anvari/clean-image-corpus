@@ -312,53 +312,55 @@ export async function syncDatabaseWithImageFolder(
     if (handle.kind !== 'file') continue;
     filesOnDisk.add(name);
 
-    await new Promise<void>(async (resolve, reject) => {
+    const exists = await new Promise<boolean>((resolve, reject) => {
       const tx = db.transaction(storeName, 'readwrite');
       const store = tx.objectStore(storeName);
       const getRequest = store.get(name);
 
-      getRequest.onsuccess = async () => {
-        if (!getRequest.result) {
-          try {
-            // Read file and extract metadata
-            const fileHandle = await imagesDirHandle.getFileHandle(name);
-            const file = await fileHandle.getFile();
-
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const [width, height, img] = await loadImage(file);
-            const image = await fileToImage(file);
-            const perceptualHash = await computeAverageHash(image)
-
-            const extension = name.split('.').pop()?.toLowerCase() || 'unknown';
-
-            const record = {
-              name,
-              fileName: name,
-              width,
-              height,
-              format: extension,
-              perceptualHash,
-              createdAt: Date.now(),
-              modifiedAt: Date.now(),
-            };
-
-            const addRequest = store.add(record);
-            addRequest.onsuccess = () => resolve();
-            addRequest.onerror = () => reject(addRequest.error);
-          } catch (err) {
-            console.error("Error processing file:", name, err);
-            reject(err);
-          }
-        } else {
-          resolve(); // Already exists, no update
-        }
-      };
-
+      getRequest.onsuccess = () => resolve(!!getRequest.result)
       getRequest.onerror = () => reject(getRequest.error);
     });
 
-    await computeOrder(db)
-    console.log("order computed")
+    if (exists) {
+      continue;
+    }
+
+    try {
+      // Read file and extract metadata
+      const fileHandle = await imagesDirHandle.getFileHandle(name);
+      const file = await fileHandle.getFile();
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const [width, height, img] = await loadImage(file);
+      const image = await fileToImage(file);
+      const perceptualHash = await computeAverageHash(image)
+
+      const extension = name.split('.').pop()?.toLowerCase() || 'unknown';
+
+      const record = {
+        name: name,
+        format: extension,
+        width: width,
+        height: height,
+        createdAt: Date.now(),
+        modifiedAt: Date.now(),
+        perceptualHash: perceptualHash,
+      };
+      console.log(record)
+
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction(storeName, 'readwrite');
+        const store = tx.objectStore(storeName);
+        const addRequest = store.add(record);
+        addRequest.onsuccess = () => {
+          console.log("Added:", name);
+          resolve();
+        };
+        addRequest.onerror = () => reject(addRequest.error);
+      });
+    } catch (err) {
+      console.error("Error processing image:", name, err);
+    }
   }
 
   // Remove records from DB that are no longer in the folder
@@ -382,6 +384,8 @@ export async function syncDatabaseWithImageFolder(
     cursorRequest.onerror = () => reject(cursorRequest.error);
   });
 
+  await computeOrder(db)
+  console.log("order computed")
   console.log("Database sync complete.");
 }
 
