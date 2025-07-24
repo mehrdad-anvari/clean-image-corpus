@@ -178,7 +178,7 @@ export default function AnnotatePage() {
     return (
         <div className="flex flex-col h-screen bg-zinc-950 text-zinc-100 h-full">
             {/* Header */}
-            <header className="bg-zinc-900 border-b border-zinc-700 px-4 py-3 shadow-md">
+            <header className="bg-zinc-900 border-b border-zinc-700 shadow-md">
                 <Toolbar
                     onSync={handleSync}
                     onSettings={toggleModal}
