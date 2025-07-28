@@ -6,9 +6,10 @@ type ToolbarProps = {
   onSync: () => void;
   onSettings: () => void;
   onExport: () => void;
+  onDelete: () => void;
 };
 
-export default function Toolbar({ onSync, onSettings, onExport }: ToolbarProps) {
+export default function Toolbar({ onSync, onSettings, onExport, onDelete }: ToolbarProps) {
   return (
     <div className="flex flex-wrap ">
       <button
@@ -30,6 +31,13 @@ export default function Toolbar({ onSync, onSettings, onExport }: ToolbarProps) 
         className="bg-zinc-800 text-zinc-100 px-4 py-2 border border-zinc-600 hover:bg-zinc-700 hover:border-blue-500 transition"
       > 
         💾 Export
+      </button>
+
+      <button
+        onClick={onDelete}
+        className="bg-zinc-800 text-zinc-100 px-4 py-2 border border-zinc-600 hover:bg-zinc-700 hover:border-blue-500 transition"
+      > 
+        🗑️ Delete
       </button>
     </div>
   );

@@ -301,6 +301,26 @@ export async function removeRecords(db: IDBDatabase, records: { name: string }[]
   }
 }
 
+export async function removeImageAndRecord(db: IDBDatabase, imagesDirHandle: FileSystemDirectoryHandle, recordKey: string) {
+  let flag = false
+  try {
+    await removeRecords(db, [{ name: recordKey }])
+    flag = true
+    console.log('Record removed successsfully');
+  } catch (error) {
+    console.error('Error removing record:', error)
+  }
+
+  if (flag) {
+    try {
+      await imagesDirHandle.removeEntry(recordKey);
+      console.log('File removed successfully.');
+    } catch (error) {
+      console.error('Error removing file:', error);
+    }
+  }
+}
+
 export async function syncDatabaseWithImageFolder(
   imagesDirHandle: FileSystemDirectoryHandle,
   db: IDBDatabase

@@ -7,7 +7,7 @@ import SettingsModal from "@/components/settingsModal";
 
 import Toolbar from "@/components/toolbar";
 import { indexedImage } from "@/interfaces";
-import { saveIndexedDBToFile, getImagesUsingDatabase, countImages, syncDatabaseWithImageFolder } from "@/lib/database";
+import { saveIndexedDBToFile, getImagesUsingDatabase, countImages, syncDatabaseWithImageFolder, removeImageAndRecord } from "@/lib/database";
 import { useProject } from "@/context/projectContext";
 import { useAppDispatch } from "@/app/hooks";
 import { useSelector } from "react-redux";
@@ -126,6 +126,17 @@ export default function AnnotatePage() {
         }
     }
 
+    async function handleDelete() {
+        console.log(cards[2])
+        if (db && imagesDirHandle && rootDirHandle &&cards[2][2]) {
+            await removeImageAndRecord(db, imagesDirHandle, cards[2][2].name)
+            await saveIndexedDBToFile(db, rootDirHandle);
+            const newImagesLen = await countImages(db);
+            setImagesLen(newImagesLen);
+            handleLoadImages(currentIndex)
+        }
+    }
+
     async function moveCurrentIndex(
         amount: number,
         length: number,
@@ -184,6 +195,7 @@ export default function AnnotatePage() {
                     onSync={handleSync}
                     onSettings={toggleModal}
                     onExport={handleExport}
+                    onDelete={handleDelete}
                 />
             </header>
 
