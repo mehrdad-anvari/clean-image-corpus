@@ -204,12 +204,51 @@ export default function AnnotatePage() {
             <div className="flex flex-row flex-grow overflow-hidden h-full">
 
                 {/* Left Sidebar */}
-                <aside className="bg-zinc-900 border-r border-zinc-700 w-full h-full md:w-64 overflow-y-auto">
+                <aside className="flex flex-col bg-zinc-900 border-r border-zinc-700 h-full md:w-64">
                     <ImageSidebar
                         cards={cards}
                         onSelect={handleImageSelect}
                         imagesLen={imagesLen}
                     />
+                    <div className="flex flex-col border-t border-zinc-700">
+                        {/* Header */}
+                        <div className="bg-zinc-800 px-4 py-2 text-sm font-medium text-zinc-200">
+                            Image Properties
+                        </div>
+
+                        {/* Properties List */}
+                        {cards[2][2] && (
+                            <div className="flex flex-col px-4 py-2 text-xs font-medium text-zinc-300 gap-2">
+                                <div className="flex justify-between">
+                                    <span className="text-zinc-400 ">Name:</span>
+                                    <span
+                                        className="truncate max-w-[10rem] text-right"
+                                        title={cards[2][2].name}
+                                    >{cards[2][2].name}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-zinc-400">Format:</span>
+                                    <span>{cards[2][2].format}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-zinc-400">Size:</span>
+                                    <span>{cards[2][2].width} × {cards[2][2].height}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-zinc-400">aHash:</span>
+                                    <span>{parseInt(cards[2][2].perceptualHash, 2).toString(16).toUpperCase()}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-zinc-400">Created:</span>
+                                    <span>{new Date(cards[2][2].createdAt).toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-zinc-400">Modified:</span>
+                                    <span>{new Date(cards[2][2].modifiedAt).toLocaleString()}</span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </aside>
 
                 {/* Canvas Area */}

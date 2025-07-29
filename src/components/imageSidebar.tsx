@@ -28,7 +28,7 @@ export default function ImageSidebar({
   // };
 
   return (
-    <aside className="w-full md:w-64 p-4 bg-zinc-900 border-r border-zinc-700 overflow-y-auto h-[90vh] max-h-screen shadow-inner flex flex-col gap-4 text-zinc-100">
+    <aside className="w-full flex-1 md:w-64 p-4 bg-zinc-900 border-r border-zinc-700 overflow-y-auto h-[90vh] max-h-screen shadow-inner flex flex-col gap-4 text-zinc-100">
       {/* Navigation and Index Display */}
       <div className="flex flex-col gap-2">
         {/* <div className="flex justify-between items-center">
