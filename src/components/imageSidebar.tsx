@@ -4,16 +4,12 @@ import React from "react";
 interface Props {
   cards: indexedImage[];
   onSelect: (index: number) => void;
-  handlePrevious: () => void;
-  handleNext: () => void;
   imagesLen: number;
 }
 
 export default function ImageSidebar({
   cards,
   onSelect,
-  handlePrevious,
-  handleNext,
   imagesLen,
 }: Props) {
   const currentIndex = cards[2]?.[0] ?? 0;
@@ -35,7 +31,7 @@ export default function ImageSidebar({
     <aside className="w-full md:w-64 p-4 bg-zinc-900 border-r border-zinc-700 overflow-y-auto h-[90vh] max-h-screen shadow-inner flex flex-col gap-4 text-zinc-100">
       {/* Navigation and Index Display */}
       <div className="flex flex-col gap-2">
-        <div className="flex justify-between items-center">
+        {/* <div className="flex justify-between items-center">
           <button
             onClick={handlePrevious}
             disabled={currentIndex === 0}
@@ -57,7 +53,7 @@ export default function ImageSidebar({
           >
             Next →
           </button>
-        </div>
+        </div> */}
 
         <div className="text-center text-xs text-zinc-400">
           Image <span className="font-semibold text-zinc-100">{currentIndex + 1}</span> of{" "}

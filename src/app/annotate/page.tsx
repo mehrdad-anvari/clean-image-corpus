@@ -17,6 +17,7 @@ import { saveSettings } from "@/lib/saveSettings";
 import { saveAnnotationsYOLO } from "@/lib/export";
 import ToolSelector from "@/components/toolSelector";
 import ClassIdSelector from "@/components/classIdSelector";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
 export default function AnnotatePage() {
     const dispatch = useAppDispatch()
@@ -128,7 +129,7 @@ export default function AnnotatePage() {
 
     async function handleDelete() {
         console.log(cards[2])
-        if (db && imagesDirHandle && rootDirHandle &&cards[2][2]) {
+        if (db && imagesDirHandle && rootDirHandle && cards[2][2]) {
             await removeImageAndRecord(db, imagesDirHandle, cards[2][2].name)
             await saveIndexedDBToFile(db, rootDirHandle);
             const newImagesLen = await countImages(db);
@@ -207,23 +208,35 @@ export default function AnnotatePage() {
                     <ImageSidebar
                         cards={cards}
                         onSelect={handleImageSelect}
-                        handlePrevious={handlePrevious}
-                        handleNext={handleNext}
                         imagesLen={imagesLen}
                     />
                 </aside>
 
                 {/* Canvas Area */}
-                <main className="flex-1 relative items-start h-full w-full bg-zinc-950 overflow-hidden">
+                <main className="flex flex-col flex-1 relative items-start h-full w-full bg-zinc-950 overflow-hidden">
                     {/* Tool Buttons */}
 
                     <ToolSelector />
 
                     <ClassIdSelector />
+
                     {/* Canvas Area */}
-                    <div className="flex w-full h-full items-center justify-center">
+                    <div className="flex-1 flex w-full items-center justify-center overflow-hidden">
                         <CanvasArea imageSrc={cards[2][1]} />
                     </div>
+
+                    <div className="flex w-full items-center justify-between px-4 h-7 bg-zinc-800 text-white border-t border-zinc-700 z-10">
+                        <button onClick={handlePrevious} className={`${currentIndex === 0
+                            ? "text-zinc-500 cursor-not-allowed"
+                            : "hover:text-blue-400 text-zinc-200 "
+                            }`}><ArrowLeft size={16} /></button>
+                        <span className="text-sm h-5">{cards[2][2]?.name}</span> {/* image name */}
+                        <button onClick={handleNext} className={`${currentIndex === imagesLen - 1
+                            ? "text-zinc-500 cursor-not-allowed"
+                            : "hover:text-blue-400 text-zinc-200 "
+                            }`}><ArrowRight size={16} /></button>
+                    </div>
+
                 </main>
 
 
