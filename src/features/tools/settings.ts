@@ -3,6 +3,13 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 
 type classAttributes = { name: string, color: [number, number, number] }
 export interface AnnotationSettingsState {
+    pose: {
+        [key: number]: {
+            name: string, color: [number, number, number],
+            keypoints: { [key: number]: classAttributes },
+            skeleton: [number, number][]
+        }
+    },
     bbox: { [key: number]: classAttributes },
     keypoint: { [key: number]: classAttributes },
     polygon: { [key: number]: classAttributes },
@@ -12,6 +19,9 @@ export interface AnnotationSettingsState {
 }
 
 const initialState: AnnotationSettingsState = {
+    pose: {
+        [0]: { name: 'default', color: [255, 255, 255], keypoints: {}, skeleton: [] }
+    },
     bbox: {
         [0]: { name: 'default', color: [255, 255, 255] }
     },
@@ -34,6 +44,21 @@ export const annotationSettingsSlice = createSlice({
     name: 'annotationSettings',
     initialState,
     reducers: {
+        addPoseClass: (state, action: PayloadAction<{
+            id: number, pose: {
+                name: string, color: [number, number, number],
+                keypoints: { [key: number]: classAttributes },
+                skeleton: [number, number][]
+            }
+        }>) => {
+            state.pose[action.payload.id] = action.payload.pose
+        },
+        addKeypointToPose: (state, action: PayloadAction<{ poseId: number, keypointId: number, keypoint: classAttributes }>) => {
+            state.pose[action.payload.poseId].keypoints[action.payload.keypointId] = action.payload.keypoint
+        },
+        addEdgeToPose: (state, action: PayloadAction<{ poseId: number, from: number, to: number }>) => {
+            state.pose[action.payload.poseId].skeleton.push([action.payload.from, action.payload.to])
+        },
         addRectClass: (state, action: PayloadAction<{ id: number, attrs: classAttributes }>) => {
             state.bbox[action.payload.id] = action.payload.attrs;
         },
@@ -48,6 +73,16 @@ export const annotationSettingsSlice = createSlice({
         },
         addObbClass: (state, action: PayloadAction<{ id: number, attrs: classAttributes }>) => {
             state.obb[action.payload.id] = action.payload.attrs;
+        },
+        deletePoseClass: (state, action: PayloadAction<number>) => {
+            delete state.pose[action.payload];
+        },
+        deletePoseKeypointClass: (state, action: PayloadAction<{ poseId: number, keypointId: number }>) => {
+            delete state.pose[action.payload.poseId].keypoints[action.payload.keypointId]
+        },
+        deletePoseEdge: (state, action: PayloadAction<{ poseId: number, edgeIndex: number }>) => {
+            if (state.pose[action.payload.poseId].skeleton[action.payload.edgeIndex])
+                state.pose[action.payload.poseId].skeleton.splice(action.payload.edgeIndex, 1)
         },
         deleteRectClass: (state, action: PayloadAction<number>) => {
             delete state.bbox[action.payload];
@@ -71,7 +106,8 @@ export const annotationSettingsSlice = createSlice({
 })
 
 export const { addRectClass, deleteRectClass, addPolygonClass, deletePolygonClass,
-    addPointClass, deletePointClass, addLineClass, deleteLineClass,
-    addObbClass, deleteObbClass, setSettings } = annotationSettingsSlice.actions
+    addPointClass, deletePointClass, addLineClass, addKeypointToPose, addPoseClass,
+    deleteLineClass, addObbClass, deleteObbClass, deletePoseClass, deletePoseKeypointClass,
+    setSettings, addEdgeToPose, deletePoseEdge } = annotationSettingsSlice.actions
 
 export default annotationSettingsSlice.reducer
