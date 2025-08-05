@@ -60,6 +60,23 @@ export interface PolygonObject {
   shell: Vertex[],
 }
 
+export type posePoint = {
+  class_id: number,
+  x: number,
+  y: number,
+  v: boolean
+}
+
+export interface PoseObject {
+  type: 'pose'
+  class_id: number,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  keypoints: posePoint[]
+}
+
 export type AnnotationObject = PointObject | LineObject | RectangleObject | OrientedRectangleObject | PolygonObject;
 
 export type SetCanvasContext = React.Dispatch<React.SetStateAction<CanvasContextState>>
