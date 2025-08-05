@@ -31,10 +31,14 @@ export default function AnnotatePage() {
 
 
     const toggleModal = () => {
-        setIsOpen(!isOpen);
+        setIsOpen(!isOpen);  
+    };
+
+    const handleClose = () => {
+        setIsOpen(false)
         if (rootDirHandle)
             saveSettings(rootDirHandle, settingsState)
-    };
+    }
 
     function replaceLastExtensionWithJson(fileName: string) {
         const lastDotIndex = fileName.lastIndexOf('.');
@@ -285,11 +289,7 @@ export default function AnnotatePage() {
                 </aside>
 
                 {/* Modal (rendered on top) */}
-                <SettingsModal
-                    isOpen={isOpen}
-                    onClose={toggleModal}
-                    settings={settingsState}
-                />
+                <SettingsModal isOpen={isOpen} onClose={() => handleClose()} />
             </div>
         </div>
     );
