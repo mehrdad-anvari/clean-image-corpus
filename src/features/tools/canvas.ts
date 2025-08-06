@@ -2,17 +2,20 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import Rectangle from "@/annotations/rectangle";
 import Keypoint from "@/annotations/point";
-import { AnnotationObject, OrientedRectangleObject, Point, PointObject, PolygonObject, RectangleObject, Vertex } from "@/interfaces";
+import { AnnotationObject, OrientedRectangleObject, Point, PointObject, PolygonObject, PoseObject, RectangleObject, Vertex } from "@/interfaces";
 import OrientedRectangle from "@/annotations/orientedRectangle";
 import Polygon from "@/annotations/polygon";
+import Pose from "@/annotations/pose";
 
 interface AnnotationsSnapshot { [key: number]: { object: AnnotationObject } };
 
 export interface CanvasState {
     selectedAnnotation: number,
     selectedVertex: number,
+    selectedPoseKeypoint: number,
     hoveringAnnotation: number,
     hoveringVertex: number,
+    hoveringPoseKeypoint: number,
     annotations: { [key: number]: { object: AnnotationObject } },
     annotationsHistory: { [key: number]: { annotations: AnnotationsSnapshot, length: number } },
     historyIndex: number,
@@ -26,6 +29,7 @@ export interface CanvasState {
     offsets: { x: number, y: number },
     isDrawing: boolean,
     isEditing: boolean,
+    drawingPoseKeypointIndex: number,
     isHandleSelected: boolean,
     isHoveringHandle: boolean,
     previousMousePosition: { x: number, y: number } | null,
@@ -34,8 +38,10 @@ export interface CanvasState {
 const initialState: CanvasState = {
     selectedAnnotation: -1,
     selectedVertex: -1,
+    selectedPoseKeypoint: -1,
     hoveringAnnotation: -1,
     hoveringVertex: -1,
+    hoveringPoseKeypoint: -1,
     annotations: {},
     annotationsHistory: { 0: { annotations: {}, length: 0 } },
     historyIndex: 0,
@@ -49,6 +55,7 @@ const initialState: CanvasState = {
     offsets: { x: 0, y: 0 },
     isDrawing: false,
     isEditing: false,
+    drawingPoseKeypointIndex: -1,
     isHandleSelected: false,
     isHoveringHandle: false,
     previousMousePosition: null,
@@ -120,6 +127,30 @@ export const canvasSlice = createSlice({
             state.annotations[state.lastIndex] = { object: newPoint }
             state.lastIndex += 1
         },
+        startDrawPoseBbox: (state, action: PayloadAction<{ classID: number, mousePosition: Point }>) => {
+            const classID = action.payload.classID
+            const p = action.payload.mousePosition
+            const newPose: PoseObject = {
+                type: 'pose',
+                class_id: classID,
+                x1: p.x,
+                y1: p.y,
+                x2: p.x,
+                y2: p.y,
+                keypoints: []
+            }
+            state.annotations[state.lastIndex] = { object: newPose }
+            state.selectedAnnotation = state.lastIndex
+            state.lastIndex += 1
+        },
+        startDrawPosePoint: (state, action: PayloadAction<{ id: number, mousePosition: Point }>) => {
+            const id = action.payload.id
+            const p = action.payload.mousePosition
+            const newPose = state.annotations[state.selectedAnnotation].object as PoseObject
+            const newKeypoints = newPose.keypoints
+            newKeypoints.push({ class_id: id, x: p.x, y: p.y, v: true })
+            state.annotations[state.selectedAnnotation].object = { ...newPose, keypoints: newKeypoints } as PoseObject
+        },
         resetHistory: (state) => {
             state.annotationsHistory = { 0: { annotations: {}, length: 0 } }
             state.historyIndex = 0
@@ -189,6 +220,31 @@ export const canvasSlice = createSlice({
             const p = action.payload
             state.annotations[state.lastIndex - 1].object = Polygon.moveVertex(poly, p.x, p.y)
         },
+        updateDrawPoseBbox: (state, action: PayloadAction<Point>) => {
+            const pose = state.annotations[state.lastIndex - 1].object
+            if (pose.type != 'pose') return
+            const p = action.payload
+            state.annotations[state.lastIndex - 1].object = {
+                type: 'pose',
+                class_id: pose.class_id,
+                x1: pose.x1,
+                y1: pose.y1,
+                x2: p.x,
+                y2: p.y,
+                keypoints: pose.keypoints
+            }
+        },
+        updateDrawPoseKeypoint: (state, action: PayloadAction<Point>) => {
+            if (state.annotations[state.lastIndex - 1].object.type != 'pose') return
+            const poly = state.annotations[state.lastIndex - 1].object as PoseObject
+            if (!poly.keypoints[state.drawingPoseKeypointIndex]) return
+            const newKeypoints = poly.keypoints
+            const p = action.payload
+            const kp = newKeypoints[state.drawingPoseKeypointIndex]
+            newKeypoints[state.drawingPoseKeypointIndex] = { class_id: kp.class_id, x: p.x, y: p.y, v: kp.v }
+            const newPose = { ...state.annotations[state.lastIndex - 1].object, keypoints: newKeypoints }
+            state.annotations[state.lastIndex - 1].object = newPose
+        },
         updateAnnotation: (state, action: PayloadAction<{ updatedAnnotation: AnnotationObject, Index: number }>) => {
             state.annotations[action.payload.Index].object = action.payload.updatedAnnotation
         },
@@ -199,6 +255,11 @@ export const canvasSlice = createSlice({
                 switch (annotation['object'].type) {
                     case 'polygon':
                         if (Polygon.containPoint(annotation['object'], p.x, p.y)) {
+                            state.hoveringAnnotation = Number(index)
+                        }
+                        break
+                    case 'pose':
+                        if (Pose.containPoint(annotation['object'], p.x, p.y)){
                             state.hoveringAnnotation = Number(index)
                         }
                         break
@@ -232,6 +293,9 @@ export const canvasSlice = createSlice({
                     case 'polygon':
                         nearestVertex = Polygon.findNearestVertex(selectedAnnotationObj, p.x, p.y)
                         break
+                    case 'pose':
+                        nearestVertex = Pose.findNearestVertex(selectedAnnotationObj, p.x, p.y)
+                        break
                     case 'obb':
                         nearestVertex = OrientedRectangle.findNearestVertex(selectedAnnotationObj, p.x, p.y)
                         break
@@ -245,6 +309,17 @@ export const canvasSlice = createSlice({
                 }
                 if (nearestVertex != null) { state.hoveringVertex = nearestVertex }
                 else { state.hoveringVertex = -1 }
+            }
+        },
+        updateHoveringPoseKeypoint: (state, action: PayloadAction<Point>) => {
+            const p = action.payload;
+            if (state.selectedAnnotation > -1) {
+                const selectedAnnotationObj = state.annotations[state.selectedAnnotation]['object']
+                if (selectedAnnotationObj.type == 'pose') {
+                    const nearestKeypoint = Pose.findNearestKeypoint(selectedAnnotationObj, p.x, p.y)
+                    if (nearestKeypoint != null)
+                        state.hoveringPoseKeypoint = nearestKeypoint
+                }
             }
         },
         updateHoveringHandle: (state, action: PayloadAction<Point>) => {
@@ -268,6 +343,9 @@ export const canvasSlice = createSlice({
         },
         selectVertexFromHover: (state) => {
             state.selectedVertex = state.hoveringVertex
+        },
+        selectKeypointFromHover: (state) => {
+            state.selectedPoseKeypoint = state.hoveringPoseKeypoint
         },
         resetSelectedAnnotation: (state) => {
             state.selectedAnnotation = -1
@@ -330,6 +408,9 @@ export const canvasSlice = createSlice({
         setSelectedClassID: (state, action: PayloadAction<number>) => {
             state.selectedClassID = action.payload
         },
+        setDrawingKeypointIndex: (state, action: PayloadAction<number>) => {
+            state.drawingPoseKeypointIndex = action.payload
+        },
         removeAnnotation: (state, action: PayloadAction<number>) => {
             delete state.annotations[action.payload]
         },
@@ -351,6 +432,9 @@ export const canvasSlice = createSlice({
         resetHoveringVertex: (state) => {
             state.hoveringVertex = -1
         },
+        resetSelectedKeypoint: (state) => {
+            state.selectedPoseKeypoint = -1
+        },
         resetCanvasState: () => initialState
     }
 })
@@ -362,6 +446,8 @@ export const { startDrawRect, updateDrawRect, updateHoveringAnnotation,
     resetHistory, setSelectedAnnotation, removeAnnotation, updateAnnotation, setIsDrawing, setIsEditing,
     drawPoint, moveSelectedPoint, setPreviousMousePosition, resetPreviousMousePosition,
     zoomIn, zoomOut, setOffsets, startDrawObb, updateDrawObb, updateHoveringHandle, setHandle,
-    startDrawPoly, updateDrawPoly, updateDrawPolyVertex, resetHoveringVertex } = canvasSlice.actions
+    startDrawPoly, updateDrawPoly, updateDrawPolyVertex, resetHoveringVertex, setDrawingKeypointIndex,
+    startDrawPoseBbox, startDrawPosePoint, updateDrawPoseBbox, updateDrawPoseKeypoint, 
+    updateHoveringPoseKeypoint, resetSelectedKeypoint, selectKeypointFromHover } = canvasSlice.actions
 
 export default canvasSlice.reducer

@@ -19,11 +19,12 @@ class Pose {
         ctx.lineWidth = 1;
 
         // Draw Bounding Box Vertices
+        ctx.beginPath()
         const vertices: Vertex[] = this.getVertices(pose).map((vertex) => { return { x: vertex.x * width, y: vertex.y * height } })
         vertices.forEach((vertex) => ctx.rect(vertex.x - 2, vertex.y - 2, 4, 4))
         ctx.fill()
         if (vertexIndex != null && vertices[vertexIndex]) {
-            ctx.rect(vertices[vertexIndex].x * width - 5, vertices[vertexIndex].y * height - 5, 10, 10);
+            ctx.rect(vertices[vertexIndex].x - 5, vertices[vertexIndex].y - 5, 10, 10);
             ctx.stroke()
         }
         ctx.closePath()
@@ -46,11 +47,13 @@ class Pose {
 
         // Draw Keypoints
         ctx.beginPath();
+        ctx.fillStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}, 1.0)`;
         pose.keypoints.forEach((keypoint) => {
             const x = keypoint.x * width; const y = keypoint.y * height;
             ctx.rect(x - 2, y - 2, 4, 4);
         })
-        ctx.fill();
+        ctx.stroke()
+        ctx.fill()
         if (keypointIndex != null) {
             const highlightedVertex = pose.keypoints[keypointIndex]
             if (highlightedVertex) {
@@ -68,6 +71,7 @@ class Pose {
                 const x2 = pose.keypoints[edge[1]].x * width; const y2 = pose.keypoints[edge[1]].y * height;
                 ctx.moveTo(x1, y1);
                 ctx.lineTo(x2, y2);
+                ctx.stroke()
                 ctx.closePath()
             }
         })
@@ -87,7 +91,7 @@ class Pose {
     }
 
     static getVertices(pose: PoseObject): Vertex[] {
-        return [1, 2, 3, 4].map((idx) => this.getVertex(pose, idx as VertexIndex));
+        return [0, 1, 2, 3].map((idx) => this.getVertex(pose, idx as VertexIndex));
     }
 
     static addKeypoint(pose: PoseObject, x: number, y: number, v: boolean = false, classId: number = 0): PoseObject {
@@ -96,11 +100,11 @@ class Pose {
         return { ...pose, keypoints: newKeypoints }
     }
 
-    static moveKeypoint(pose: PoseObject, dx: number, dy: number, keypointIndex: number): PoseObject {
+    static moveKeypoint(pose: PoseObject, xt: number, yt: number, keypointIndex: number): PoseObject {
         const newKeypoints = pose.keypoints
         if (newKeypoints[keypointIndex]) {
             const p = newKeypoints[keypointIndex]
-            newKeypoints[keypointIndex] = { class_id: p.class_id, x: p.x + dx, y: p.y + dy, v: p.v }
+            newKeypoints[keypointIndex] = { class_id: p.class_id, x: xt, y: yt, v: p.v }
             return { ...pose, keypoints: newKeypoints }
         }
         return pose

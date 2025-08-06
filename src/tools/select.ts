@@ -1,18 +1,11 @@
 import { getAbsoluteCoords, getNormalizedCoords } from "@/lib/utils";
 import { Dispatch, Action } from 'redux';
 import {
-    CanvasState, resetPreviousMousePosition, selectAnnotationFromHover, setOffsets, setPreviousMousePosition, setSelectedClassID, setSelectedTool,
+    CanvasState, resetPreviousMousePosition, selectAnnotationFromHover, setOffsets, setPreviousMousePosition, setSelectedClassID,
     updateHoveringAnnotation, updateHoveringVertex
 } from "@/features/tools/canvas";
 import { AnnotationSettingsState } from "@/features/tools/settings";
-
-const typeMap = {
-    'bbox' : 'rectClasses',
-    'keypoint' : 'pointClasses',
-    'line': 'lineClasses',
-    'obb' : 'obbClasses',
-    'polygon' : 'polygonClasses'
-}
+import { switchTools } from "./utils";
 
 export function selectTool(
     event: React.MouseEvent<HTMLCanvasElement>,
@@ -24,25 +17,8 @@ export function selectTool(
         case 'mousedown':
             if (event.button == 0) {
                 if (canvasState.hoveringAnnotation != -1) {
-                    const newClassID = canvasState.annotations[canvasState.hoveringAnnotation].object.class_id
-                    switch (canvasState.annotations[canvasState.hoveringAnnotation].object.type) {
-                        case 'bbox':
-                            dispatch(setSelectedTool('EDIT_RECT'));
-                            dispatch(setSelectedClassID(newClassID))
-                            break;
-                        case 'keypoint':
-                            dispatch(setSelectedTool('EDIT_POINT'))
-                            dispatch(setSelectedClassID(newClassID))
-                            break;
-                        case 'obb':
-                            dispatch(setSelectedTool('EDIT_OBB'))
-                            dispatch(setSelectedClassID(newClassID))
-                            break;
-                        case 'polygon':
-                            dispatch(setSelectedTool('EDIT_POLY'))
-                            dispatch(setSelectedClassID(newClassID))
-                            break;
-                    }
+                    const annotationObj = canvasState.annotations[canvasState.hoveringAnnotation].object
+                    switchTools(annotationObj.type, annotationObj.class_id, dispatch)
                     dispatch(selectAnnotationFromHover());
                 } else {
                     const p = getAbsoluteCoords(event)
@@ -53,9 +29,9 @@ export function selectTool(
                 const selectedClassID = canvasState.selectedClassID;
                 const lastIndex = Math.max(...Object.keys(canvasState.annotations).map(Number))
                 const lastAnnotationType = canvasState.annotations[lastIndex].object.type
-                const selectedTypeSettings = settings[typeMap[lastAnnotationType] as 'bbox' | 'keypoint' | 'polygon' | 'obb' | 'line']
+                const selectedTypeSettings = settings[lastAnnotationType]
                 if (selectedTypeSettings[selectedClassID + 1]) {
-                    dispatch(setSelectedClassID(selectedClassID+1))
+                    dispatch(setSelectedClassID(selectedClassID + 1))
                 } else {
                     dispatch(setSelectedClassID(0))
                 }
@@ -73,9 +49,9 @@ export function selectTool(
             const p = canvasState.previousMousePosition
             if (p) {
                 const p2 = getAbsoluteCoords(event);
-                const newOffset = {...canvasState.offsets}
-                newOffset.x = newOffset.x + (p2.x - p.x) 
-                newOffset.y = newOffset.y + (p2.y - p.y) 
+                const newOffset = { ...canvasState.offsets }
+                newOffset.x = newOffset.x + (p2.x - p.x)
+                newOffset.y = newOffset.y + (p2.y - p.y)
                 dispatch(setOffsets(newOffset))
                 dispatch(setPreviousMousePosition(p2))
             }

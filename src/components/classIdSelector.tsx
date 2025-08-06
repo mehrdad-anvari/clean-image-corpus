@@ -23,14 +23,16 @@ const typeMap = {
     'DRAW_POINT': 'keypoint',
     'DRAW_OBB': 'obb',
     'DRAW_POLY': 'polygon',
+    'DRAW_POSE': 'pose',
     'EDIT_RECT': 'bbox',
     'EDIT_POINT': 'keypoint',
     'EDIT_OBB': 'obb',
     'EDIT_POLY': 'polygon',
+    'EDIT_POSE': 'pose',
     'SELECT': '',
 }
 
-type SelectedToolType = 'DRAW_RECT' | 'DRAW_POINT' | 'DRAW_OBB' | 'DRAW_POLY' | 'EDIT_OBB' | 'EDIT_RECT' | 'EDIT_POINT' | 'EDIT_POLY' | 'SELECT'
+type SelectedToolType = 'DRAW_RECT' | 'DRAW_POINT' | 'DRAW_OBB' | 'DRAW_POLY' | 'DRAW_POSE' | 'EDIT_OBB' | 'EDIT_RECT' | 'EDIT_POINT' | 'EDIT_POLY' | 'EDIT_POSE' | 'SELECT'
 
 export default function ClassIdSelector() {
     const dispatch = useAppDispatch();
@@ -46,14 +48,14 @@ export default function ClassIdSelector() {
                 setMode(newMode as SelectedToolType);
             }
 
-            if (selectedTool == 'DRAW_RECT' || selectedTool == 'DRAW_POINT' || selectedTool == 'DRAW_OBB' || selectedTool == 'DRAW_POLY') {
+            if (selectedTool == 'DRAW_RECT' || selectedTool == 'DRAW_POINT' || selectedTool == 'DRAW_OBB' || selectedTool == 'DRAW_POLY' || selectedTool == 'DRAW_POSE') {
                 dispatch(setSelectedClassID(0))
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedTool])
 
-    const targetSettings = settings[mode as 'bbox' | 'keypoint' | 'obb' | 'polygon']
+    const targetSettings = settings[mode as 'bbox' | 'keypoint' | 'obb' | 'polygon' | 'pose']
     const name = targetSettings[selectedClassId]?.name;
     const color = targetSettings[selectedClassId]?.color;
 

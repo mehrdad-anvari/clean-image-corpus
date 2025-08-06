@@ -9,7 +9,7 @@ import {
   setIsEditing,
   setSelectedTool,
 } from "@/features/tools/canvas";
-import { Move, Pencil, Edit, Square, CircleDot, Diamond, Pentagon } from "lucide-react";
+import { Move, Pencil, Edit, Square, CircleDot, Diamond, Pentagon, Waypoints } from "lucide-react";
 import { useAppDispatch } from "@/app/hooks";
 import { useState } from "react";
 
@@ -17,13 +17,14 @@ const drawSubtools = [
   { id: "DRAW_RECT", icon: <Square size={16} /> },
   { id: "DRAW_POINT", icon: <CircleDot size={16} /> },
   { id: "DRAW_OBB", icon: <Diamond size={16} />},
-  { id: "DRAW_POLY", icon: <Pentagon size={16} />}
+  { id: "DRAW_POLY", icon: <Pentagon size={16} />},
+  { id: "DRAW_POSE", icon: <Waypoints size={16} />}
 ];
 
 export default function ToolSelector() {
   const dispatch = useAppDispatch();
   const selectedTool = useSelector((state: RootState) => state.canvas.selectedTool);
-  const [drawTool, setDrawTool] = useState<"DRAW_RECT" | "DRAW_POINT" | "DRAW_OBB" | "DRAW_POLY">("DRAW_RECT");
+  const [drawTool, setDrawTool] = useState<"DRAW_RECT" | "DRAW_POINT" | "DRAW_OBB" | "DRAW_POLY" | "DRAW_POSE">("DRAW_RECT");
   const [showDropdown, setShowDropdown] = useState(false);
 
   const handleSelectTool = (id: string) => {
@@ -35,13 +36,13 @@ export default function ToolSelector() {
     dispatch(resetHoveringVertex())
   };
 
-  const handleDrawToolChange = (id: "DRAW_RECT" | "DRAW_POINT" | "DRAW_OBB" | "DRAW_POLY") => {
+  const handleDrawToolChange = (id: "DRAW_RECT" | "DRAW_POINT" | "DRAW_OBB" | "DRAW_POLY" | "DRAW_POSE") => {
     setDrawTool(id);
     handleSelectTool(id);
     setShowDropdown(false);
   };
 
-  const isEditToolSelected = selectedTool === "EDIT_RECT" || selectedTool === "EDIT_POINT" || selectedTool === "EDIT_OBB" || selectedTool === "EDIT_POLY";
+  const isEditToolSelected = selectedTool === "EDIT_RECT" || selectedTool === "EDIT_POINT" || selectedTool === "EDIT_OBB" || selectedTool === "EDIT_POLY" || selectedTool === "EDIT_POSE";
 
   return (
     <div className="absolute top-4 left-4 z-20 flex gap-2">
@@ -93,7 +94,7 @@ export default function ToolSelector() {
             {drawSubtools.map(({ id, icon }) => (
               <button
                 key={id}
-                onClick={() => handleDrawToolChange(id as 'DRAW_RECT' | 'DRAW_POINT' | 'DRAW_OBB' | 'DRAW_POLY')}
+                onClick={() => handleDrawToolChange(id as 'DRAW_RECT' | 'DRAW_POINT' | 'DRAW_OBB' | 'DRAW_POLY' | 'DRAW_POSE')}
                 className="w-full h-9 flex items-center gap-2 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-700"
               >
                 {icon}

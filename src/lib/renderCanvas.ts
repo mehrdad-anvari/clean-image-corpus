@@ -1,6 +1,7 @@
 import OrientedRectangle from "@/annotations/orientedRectangle";
 import Keypoint from "@/annotations/point";
 import Polygon from "@/annotations/polygon";
+import Pose from "@/annotations/pose";
 import Rectangle from "@/annotations/rectangle";
 import { CanvasState } from "@/features/tools/canvas";
 import { AnnotationSettingsState } from "@/features/tools/settings";
@@ -28,6 +29,7 @@ export function renderCanvas(canvas: HTMLCanvasElement, imageSrc: string, canvas
       } else {
         highlighted_vertex = null
       }
+      const highlight_keypoint = (i === canvasState.selectedAnnotation) ? canvasState.hoveringPoseKeypoint : null;
       color = settings[annotationObj.type][annotation.object.class_id].color
       switch (annotationObj.type) {
         case 'bbox':
@@ -61,6 +63,15 @@ export function renderCanvas(canvas: HTMLCanvasElement, imageSrc: string, canvas
             Polygon.draw(annotationObj, canvas, i === canvasState.selectedAnnotation, highlighted_vertex, color);
           } else {
             Polygon.draw(annotationObj, canvas, (i === canvasState.hoveringAnnotation) || (i === canvasState.selectedAnnotation), highlighted_vertex, color);
+          }
+          break;
+        case 'pose':
+          const skeleton = (canvasState.annotations[canvasState.selectedAnnotation]) ? settings.pose[canvasState.annotations[canvasState.selectedAnnotation].object.class_id].skeleton : []
+          if (canvasState.selectedTool == 'DRAW_POSE' || canvasState.selectedTool == 'SELECT') {
+            Pose.draw(annotationObj, canvas, i === canvasState.selectedAnnotation, null, null, skeleton, color);
+          } else {
+            Pose.draw(annotationObj, canvas, (i === canvasState.hoveringAnnotation) || (i === canvasState.selectedAnnotation),
+              highlighted_vertex, highlight_keypoint, skeleton, color);
           }
           break;
       }

@@ -11,6 +11,7 @@ import {
 import { Dispatch, Action } from 'redux';
 import { CanvasState } from "@/features/tools/canvas";
 import { AnnotationSettingsState } from "@/features/tools/settings";
+import { switchTools } from "./utils";
 
 export function editPointTool(
     event: React.MouseEvent<HTMLCanvasElement>,
@@ -22,26 +23,8 @@ export function editPointTool(
         case 'mousedown':
             if (event.button == 0) {
                 if (canvasState.hoveringAnnotation != -1) {
-                    const newClassID = canvasState.annotations[canvasState.hoveringAnnotation].object.class_id
-                    switch (canvasState.annotations[canvasState.hoveringAnnotation].object.type) {
-                        case 'bbox':
-                            dispatch(setSelectedTool('EDIT_RECT'));
-                            dispatch(setSelectedClassID(newClassID))
-                            break;
-                        case 'keypoint':
-                            dispatch(setSelectedTool('EDIT_POINT'))
-                            dispatch(setSelectedClassID(newClassID))
-                            dispatch(setIsEditing(true))
-                            break;
-                        case 'obb':
-                            dispatch(setSelectedTool('EDIT_OBB'))
-                            dispatch(setSelectedClassID(newClassID))
-                            break;
-                        case 'polygon':
-                            dispatch(setSelectedTool('EDIT_POLY'))
-                            dispatch(setSelectedClassID(newClassID))
-                            break;
-                    }
+                    const annotationObj = canvasState.annotations[canvasState.hoveringAnnotation].object
+                    switchTools(annotationObj.type, annotationObj.class_id, dispatch)
                     dispatch(selectAnnotationFromHover())
                 } else {
                     dispatch(setSelectedTool('SELECT'))

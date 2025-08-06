@@ -14,6 +14,7 @@ import { CanvasState } from "@/features/tools/canvas";
 import { AnnotationSettingsState } from "@/features/tools/settings";
 import { RectangleObject } from "@/interfaces";
 import Rectangle from "@/annotations/rectangle";
+import { switchTools } from "./utils";
 
 export function editRectTool(
     event: React.MouseEvent<HTMLCanvasElement>,
@@ -35,25 +36,8 @@ export function editRectTool(
                             const newCoords = getNormalizedCoords(event);
                             dispatch(setPreviousMousePosition(newCoords))
                         } else {
-                            const newClassID = canvasState.annotations[canvasState.hoveringAnnotation].object.class_id
-                            switch (canvasState.annotations[canvasState.hoveringAnnotation].object.type) {
-                                case 'bbox':
-                                    dispatch(setSelectedTool('EDIT_RECT'));
-                                    dispatch(setSelectedClassID(newClassID))
-                                    break;
-                                case 'keypoint':
-                                    dispatch(setSelectedTool('EDIT_POINT'))
-                                    dispatch(setSelectedClassID(newClassID))
-                                    break;
-                                case 'obb':
-                                    dispatch(setSelectedTool('EDIT_OBB'))
-                                    dispatch(setSelectedClassID(newClassID))
-                                    break;
-                                case 'polygon':
-                                    dispatch(setSelectedTool('EDIT_POLY'))
-                                    dispatch(setSelectedClassID(newClassID))
-                                    break;
-                            }
+                            const annotationObj = canvasState.annotations[canvasState.hoveringAnnotation].object
+                            switchTools(annotationObj.type, annotationObj.class_id, dispatch)
                             dispatch(selectAnnotationFromHover())
                         }
                     } else {
@@ -100,8 +84,8 @@ export function editRectTool(
                 const dx = newCoords.x - canvasState.previousMousePosition.x
                 const dy = newCoords.y - canvasState.previousMousePosition.y
                 const rect: RectangleObject = canvasState.annotations[canvasState.selectedAnnotation].object as RectangleObject
-                const newRect = Rectangle.move(rect,dx,dy)
-                dispatch(updateAnnotation({updatedAnnotation: newRect, Index: canvasState.selectedAnnotation}))
+                const newRect = Rectangle.move(rect, dx, dy)
+                dispatch(updateAnnotation({ updatedAnnotation: newRect, Index: canvasState.selectedAnnotation }))
                 dispatch(setPreviousMousePosition(newCoords))
             }
             dispatch(updateHoveringAnnotation(newCoords))

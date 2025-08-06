@@ -77,7 +77,7 @@ export interface PoseObject {
   keypoints: posePoint[]
 }
 
-export type AnnotationObject = PointObject | LineObject | RectangleObject | OrientedRectangleObject | PolygonObject;
+export type AnnotationObject = PointObject | LineObject | RectangleObject | OrientedRectangleObject | PolygonObject | PoseObject;
 
 export type SetCanvasContext = React.Dispatch<React.SetStateAction<CanvasContextState>>
 
