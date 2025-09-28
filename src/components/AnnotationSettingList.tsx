@@ -40,10 +40,10 @@ export default function AnnotationSettingList({
             className="w-15 px-2 py-1 bg-zinc-800 border border-zinc-600 rounded"
             type="number"
             min={0}
-            value={classID}
+            value={classID ?? ""}
             placeholder="ID"
             onChange={(e) => {
-              setClassID(Number(e.target.value))
+              setClassID(e.target.value === "" ? undefined: Number(e.target.value))
               setColor(getRandomColor())
             }}
           >
@@ -255,14 +255,14 @@ export function AnnotationSettingListPose({
               type="number"
               className="w-15 px-2 py-1 bg-zinc-800 border border-zinc-600 rounded"
               placeholder="ID"
-              value={newPose.id}
+              value={newPose.id ?? ""}
               min={0}
               onChange={(e) => setNewPose({ ...newPose, id: Number(e.target.value) })}
             />
             <input
               className="w-full px-2 py-1 bg-zinc-800 border border-zinc-600 rounded"
               placeholder="Name"
-              value={newPose.name}
+              value={newPose.name ?? ""}
               onChange={(e) => setNewPose({ ...newPose, name: e.target.value })}
             />
           </div>
@@ -297,7 +297,7 @@ export function AnnotationSettingListPose({
               type="number"
               className="w-15 px-2 py-1 bg-zinc-800 border border-zinc-600 rounded"
               placeholder="ID"
-              value={newKeypoint.id}
+              value={newKeypoint.id ?? ""}
               min={0}
               onChange={(e) => setNewKeypoint({ ...newKeypoint, id: Number(e.target.value) })}
             />
@@ -345,7 +345,7 @@ export function AnnotationSettingListPose({
               className={`w-1/2 px-2 py-1 bg-zinc-800 border rounded ${(selectedPoseId != null && newEdge.from != undefined && settings.pose[selectedPoseId].keypoints[newEdge.from]) ? 'border-zinc-600' : 'border-red-600'}`}
               placeholder="From"
               min={0}
-              value={newEdge.from}
+              value={newEdge.from ?? ""}
               onChange={(e) => setNewEdge({ ...newEdge, from: Number(e.target.value) })}
             />
             <input
@@ -354,7 +354,7 @@ export function AnnotationSettingListPose({
               className={`w-1/2 px-2 py-1 bg-zinc-800 border rounded ${(selectedPoseId != null && newEdge.to != undefined && settings.pose[selectedPoseId].keypoints[newEdge.to]) ? 'border-zinc-600' : 'border-red-600'}`}
               placeholder="To"
               min={0}
-              value={newEdge.to}
+              value={newEdge.to ?? ""}
               onChange={(e) => setNewEdge({ ...newEdge, to: Number(e.target.value) })}
             />
           </div>
