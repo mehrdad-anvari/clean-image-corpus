@@ -105,7 +105,7 @@ class OrientedRectangle {
         return nearestVertexIndex
     }
 
-    static draw(obb: OrientedRectangleObject, canvas: HTMLCanvasElement, highlight: boolean = false, vertex_index: number | null = null, highlightHandle: boolean = false, color: number[] = [255, 0, 0]) {
+    static draw(obb: OrientedRectangleObject, canvas: HTMLDivElement, highlight: boolean = false, vertex_index: number | null = null, highlightHandle: boolean = false, color: number[] = [255, 0, 0]) {
         const width = canvas.width;
         const height = canvas.height;
         const ctx = canvas.getContext("2d");

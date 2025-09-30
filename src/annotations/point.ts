@@ -12,7 +12,7 @@ class Keypoint {
 
     static draw(
         point: PointObject,
-        canvas: HTMLCanvasElement,
+        canvas: HTMLDivElement,
         highlight: boolean = false,
         color: number[] = [255, 0, 0]
     ) {

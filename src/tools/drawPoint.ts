@@ -5,15 +5,16 @@ import { CanvasState } from "@/features/tools/canvas";
 import { AnnotationSettingsState } from "@/features/tools/settings";
 
 export function drawPointTool(
-    event: React.MouseEvent<HTMLCanvasElement>,
+    event: React.MouseEvent<HTMLDivElement>,
     canvasState: CanvasState,
     settings: AnnotationSettingsState,
     dispatch: Dispatch<Action>,
+    canvas: HTMLCanvasElement
 ) {
     switch (event.type) {
         case 'mousedown':
             if (event.button == 0) {
-                const startPoint = getNormalizedCoords(event);
+                const startPoint = getNormalizedCoords(event, canvas);
                 dispatch(drawPoint({ classID: canvasState.selectedClassID, mousePosition: startPoint }))
                 dispatch(saveAnnotationsHistory())
             } else if (event.button == 2) {

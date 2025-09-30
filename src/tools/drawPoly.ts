@@ -7,16 +7,17 @@ import Polygon from "@/annotations/polygon";
 import { PolygonObject } from "@/interfaces";
 
 export function drawPolyTool(
-    event: React.MouseEvent<HTMLCanvasElement>,
+    event: React.MouseEvent<HTMLDivElement>,
     canvasState: CanvasState,
     settings: AnnotationSettingsState,
     dispatch: Dispatch<Action>,
+    canvas: HTMLCanvasElement
 ) {
     switch (event.type) {
         case 'mousedown':
             if (event.button == 0) {
                 const selectedAnnotation = canvasState.annotations[canvasState.selectedAnnotation]?.object
-                const newCoords = getNormalizedCoords(event);
+                const newCoords = getNormalizedCoords(event, canvas);
                 const isNearStart: boolean = (
                     (canvasState.isDrawing && selectedAnnotation.type == 'polygon') ?
                         Polygon.isNearVertex(selectedAnnotation, newCoords.x, newCoords.y, 0) : false
@@ -31,10 +32,10 @@ export function drawPolyTool(
                     }
 
                 } else if (canvasState.isDrawing) {
-                    const newCoords = getNormalizedCoords(event);
+                    const newCoords = getNormalizedCoords(event, canvas);
                     dispatch(updateDrawPoly(newCoords))
                 } else {
-                    const startPoint = getNormalizedCoords(event);
+                    const startPoint = getNormalizedCoords(event, canvas);
                     dispatch(startDrawPoly({ classID: canvasState.selectedClassID, mousePosition: startPoint }))
                     dispatch(setIsDrawing(true))
                 }
@@ -55,7 +56,7 @@ export function drawPolyTool(
             break;
 
         case 'mousemove':
-            const newCoords = getNormalizedCoords(event);
+            const newCoords = getNormalizedCoords(event, canvas);
             const selectedAnnotation = canvasState.annotations[canvasState.selectedAnnotation]?.object
             const isNearStart: boolean = (
                 (canvasState.isDrawing && selectedAnnotation && selectedAnnotation.type == 'polygon') ?

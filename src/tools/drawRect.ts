@@ -5,15 +5,16 @@ import { CanvasState } from "@/features/tools/canvas";
 import { AnnotationSettingsState } from "@/features/tools/settings";
 
 export function drawRectTool(
-    event: React.MouseEvent<HTMLCanvasElement>,
+    event: React.MouseEvent<HTMLDivElement>,
     canvasState: CanvasState,
     settings: AnnotationSettingsState,
     dispatch: Dispatch<Action>,
+    canvas: HTMLCanvasElement
 ) {
     switch (event.type) {
         case 'mousedown':
             if (event.button == 0) {
-                const startPoint = getNormalizedCoords(event);
+                const startPoint = getNormalizedCoords(event, canvas)
                 dispatch(startDrawRect({ classID: canvasState.selectedClassID, mousePosition: startPoint }))
                 dispatch(setIsDrawing(true))
             } else if (event.button == 2) {
@@ -36,7 +37,7 @@ export function drawRectTool(
 
         case 'mousemove':
             if (canvasState.isDrawing) {
-                const newCoords = getNormalizedCoords(event);
+                const newCoords = getNormalizedCoords(event, canvas);
                 dispatch(updateDrawRect(newCoords))
             }
             break;

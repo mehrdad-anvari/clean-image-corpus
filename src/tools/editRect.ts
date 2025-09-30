@@ -17,10 +17,11 @@ import Rectangle from "@/annotations/rectangle";
 import { switchTools } from "./utils";
 
 export function editRectTool(
-    event: React.MouseEvent<HTMLCanvasElement>,
+    event: React.MouseEvent<HTMLDivElement>,
     canvasState: CanvasState,
     settings: AnnotationSettingsState,
     dispatch: Dispatch<Action>,
+    canvas: HTMLCanvasElement
 ) {
     switch (event.type) {
         case 'mousedown':
@@ -33,7 +34,7 @@ export function editRectTool(
                         if (canvasState.selectedAnnotation == canvasState.hoveringAnnotation &&
                             canvasState.annotations[canvasState.selectedAnnotation].object.type == 'bbox') {
                             dispatch(setIsEditing(true))
-                            const newCoords = getNormalizedCoords(event);
+                            const newCoords = getNormalizedCoords(event, canvas);
                             dispatch(setPreviousMousePosition(newCoords))
                         } else {
                             const annotationObj = canvasState.annotations[canvasState.hoveringAnnotation].object
@@ -79,7 +80,7 @@ export function editRectTool(
             break;
 
         case 'mousemove':
-            const newCoords = getNormalizedCoords(event);
+            const newCoords = getNormalizedCoords(event, canvas);
             if (canvasState.isEditing && canvasState.previousMousePosition) {
                 const dx = newCoords.x - canvasState.previousMousePosition.x
                 const dy = newCoords.y - canvasState.previousMousePosition.y

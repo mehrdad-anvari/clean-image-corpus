@@ -8,10 +8,11 @@ import { AnnotationSettingsState } from "@/features/tools/settings";
 import { switchTools } from "./utils";
 
 export function selectTool(
-    event: React.MouseEvent<HTMLCanvasElement>,
+    event: React.MouseEvent<HTMLDivElement>,
     canvasState: CanvasState,
     settings: AnnotationSettingsState,
     dispatch: Dispatch<Action>,
+    canvas: HTMLCanvasElement
 ) {
     switch (event.type) {
         case 'mousedown':
@@ -45,7 +46,7 @@ export function selectTool(
             break;
 
         case 'mousemove':
-            const newCoords = getNormalizedCoords(event);
+            const newCoords = getNormalizedCoords(event, canvas);
             const p = canvasState.previousMousePosition
             if (p) {
                 const p2 = getAbsoluteCoords(event);

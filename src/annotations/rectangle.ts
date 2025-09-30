@@ -74,7 +74,7 @@ class Rectangle {
         return nearestVertexIndex;
     }
 
-    static draw(rect: RectangleObject, canvas: HTMLCanvasElement, highlight: boolean = false, vertex_index: number | null = null, color: number[] = [255, 0, 0]) {
+    static draw(rect: RectangleObject, canvas: HTMLDivElement, highlight: boolean = false, vertex_index: number | null = null, color: number[] = [255, 0, 0]) {
         const width = canvas.width;
         const height = canvas.height;
         const ctx = canvas.getContext("2d");

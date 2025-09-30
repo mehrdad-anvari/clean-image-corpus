@@ -8,7 +8,7 @@ class Polygon {
         return { ...poly, shell: newShell }
     }
 
-    static draw(poly: PolygonObject, canvas: HTMLCanvasElement, highlight: boolean = false, vertexIndex: number | null = null, color: number[] = [255, 0, 0]) {
+    static draw(poly: PolygonObject, canvas: HTMLDivElement, highlight: boolean = false, vertexIndex: number | null = null, color: number[] = [255, 0, 0]) {
         const width = canvas.width;
         const height = canvas.height;
         const ctx = canvas.getContext("2d");

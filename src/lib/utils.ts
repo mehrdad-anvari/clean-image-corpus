@@ -5,23 +5,25 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(...inputs));
 }
 
-export function getNormalizedCoords(e: React.MouseEvent<HTMLCanvasElement>) {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const width = e.currentTarget.width
-    const height = e.currentTarget.height
-    const x = (e.clientX - rect.left) / width;
-    const y = (e.clientY - rect.top) / height;
-    return { x, y };
-};
+export function getNormalizedCoords(
+  e: React.MouseEvent,
+  canvas: HTMLCanvasElement
+) {
+  const rect = canvas.getBoundingClientRect();
+  const x = (e.clientX - rect.left) / canvas.width;
+  const y = (e.clientY - rect.top) / canvas.height;
+  return { x, y };
+}
 
-export function getCoords(e: React.MouseEvent<HTMLCanvasElement>) {
+
+export function getCoords(e: React.MouseEvent<HTMLDivElement>) {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = (e.clientX - rect.left);
     const y = (e.clientY - rect.top);
     return { x, y };
 };
 
-export function getAbsoluteCoords(e: React.MouseEvent<HTMLCanvasElement>) {
+export function getAbsoluteCoords(e: React.MouseEvent<HTMLDivElement>) {
     const x = e.clientX;
     const y = e.clientY;
     return { x, y };

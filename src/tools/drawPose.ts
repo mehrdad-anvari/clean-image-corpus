@@ -15,15 +15,16 @@ import { AnnotationSettingsState } from "@/features/tools/settings";
 
 
 export function drawPoseTool(
-    event: React.MouseEvent<HTMLCanvasElement>,
+    event: React.MouseEvent<HTMLDivElement>,
     canvasState: CanvasState,
     settings: AnnotationSettingsState,
     dispatch: Dispatch<Action>,
+    canvas: HTMLCanvasElement
 ) {
     switch (event.type) {
         case 'mousedown':
             if (event.button == 0) {
-                const startPoint = getNormalizedCoords(event);
+                const startPoint = getNormalizedCoords(event, canvas)
                 if (canvasState.isDrawing == false) {
                     dispatch(startDrawPoseBbox({ classID: canvasState.selectedClassID, mousePosition: startPoint }))
                     dispatch(setIsDrawing(true))
@@ -67,7 +68,7 @@ export function drawPoseTool(
             break;
 
         case 'mousemove':
-            const newCoords = getNormalizedCoords(event);
+            const newCoords = getNormalizedCoords(event, canvas);
             const selectedAnnotation = canvasState.annotations[canvasState.selectedAnnotation]?.object
 
             if (canvasState.isDrawing && selectedAnnotation.type == 'pose') {

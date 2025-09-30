@@ -4,7 +4,7 @@ import { renderCanvas } from "@/lib/renderCanvas";
 import { useAppDispatch } from "@/app/hooks";
 import { useSelector } from "react-redux";
 import { RootState } from "@/app/store";
-import { setCanvasSize } from "@/features/tools/canvas";
+import { CanvasState, setCanvasSize } from "@/features/tools/canvas";
 
 interface Props {
   imageSrc: string | null,
@@ -13,7 +13,7 @@ interface Props {
 export default function CanvasArea({ imageSrc }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const dispatch = useAppDispatch()
-  const canvasState = useSelector((state: RootState) => state.canvas)
+  const canvasState: CanvasState = useSelector((state: RootState) => state.canvas)
   const zoom = useSelector((state: RootState) => state.canvas.zoom)
   const settings = useSelector((state: RootState) => state.settings)
 
@@ -45,41 +45,51 @@ export default function CanvasArea({ imageSrc }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [imageSrc, canvasState]);
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    TaskManager(e, canvasState, settings, dispatch)
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (canvasRef.current)
+    TaskManager(e, canvasState, settings, dispatch, canvasRef.current)
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    TaskManager(e, canvasState, settings, dispatch)
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (canvasRef.current)
+    TaskManager(e, canvasState, settings, dispatch, canvasRef.current)
   };
 
-  const handleMouseUp = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    TaskManager(e, canvasState, settings, dispatch)
+  const handleMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (canvasRef.current)
+    TaskManager(e, canvasState, settings, dispatch, canvasRef.current)
   };
 
-  const handleKeyboard = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
-    TaskManager(e, canvasState, settings, dispatch)
+  const handleKeyboard = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (canvasRef.current)
+    TaskManager(e, canvasState, settings, dispatch, canvasRef.current)
   }
 
-  const handleContextMenu = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const handleContextMenu = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault(); // Prevent the context menu from appearing
   };
 
-  const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
     // e.preventDefault();
-    TaskManager(e, canvasState, settings, dispatch)
+    if (canvasRef.current)
+    TaskManager(e, canvasState, settings, dispatch, canvasRef.current)
   }
 
   return (
-    <div className="flex justify-center items-center w-full h-full bg-zinc-950">
+    <div className="flex justify-center items-center w-full h-full bg-zinc-950"
+         onMouseDown={handleMouseDown}
+         onMouseMove={handleMouseMove}
+         onMouseUp={handleMouseUp}
+         onKeyDown={handleKeyboard}
+         onWheel={handleWheel}>
       <canvas
         ref={canvasRef}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onKeyDown={handleKeyboard}
-        onContextMenu={handleContextMenu}
-        onWheel={handleWheel}
+        // onMouseDown={handleMouseDown}
+        // onMouseMove={handleMouseMove}
+        // onMouseUp={handleMouseUp}
+        // onKeyDown={handleKeyboard}
+        // onContextMenu={handleContextMenu}
+        // onWheel={handleWheel}
         tabIndex={0}
         className="outline-none border border-zinc-700 shadow-md bg-zinc-900 focus:ring-1 focus:ring-blue-500 "
         style={{

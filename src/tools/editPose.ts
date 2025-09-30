@@ -27,10 +27,11 @@ import Pose from "@/annotations/pose";
 import { switchTools } from "./utils";
 
 export function editPoseTool(
-    event: React.MouseEvent<HTMLCanvasElement>,
+    event: React.MouseEvent<HTMLDivElement>,
     canvasState: CanvasState,
     settings: AnnotationSettingsState,
     dispatch: Dispatch<Action>,
+    canvas: HTMLCanvasElement
 ) {
     switch (event.type) {
         case 'mousedown':
@@ -51,7 +52,7 @@ export function editPoseTool(
                     if (canvasState.selectedAnnotation == canvasState.hoveringAnnotation &&
                         canvasState.annotations[canvasState.selectedAnnotation].object.type == 'pose') {
                         dispatch(setIsEditing(true))
-                        const newCoords = getNormalizedCoords(event);
+                        const newCoords = getNormalizedCoords(event, canvas);
                         dispatch(setPreviousMousePosition(newCoords))
                     } else {
                         const annotationObj = canvasState.annotations[canvasState.hoveringAnnotation].object
@@ -102,7 +103,7 @@ export function editPoseTool(
             break;
 
         case 'mousemove':
-            const newCoords = getNormalizedCoords(event);
+            const newCoords = getNormalizedCoords(event, canvas);
             if (canvasState.isEditing && canvasState.previousMousePosition && canvasState.annotations[canvasState.selectedAnnotation]) {
                 const dx = newCoords.x - canvasState.previousMousePosition.x
                 const dy = newCoords.y - canvasState.previousMousePosition.y

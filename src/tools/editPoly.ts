@@ -19,10 +19,11 @@ import Polygon from "@/annotations/polygon";
 import { switchTools } from "./utils";
 
 export function editPolyTool(
-    event: React.MouseEvent<HTMLCanvasElement>,
+    event: React.MouseEvent<HTMLDivElement>,
     canvasState: CanvasState,
     settings: AnnotationSettingsState,
     dispatch: Dispatch<Action>,
+    canvas: HTMLCanvasElement
 ) {
     switch (event.type) {
         case 'mousedown':
@@ -35,7 +36,7 @@ export function editPolyTool(
                         if (canvasState.selectedAnnotation == canvasState.hoveringAnnotation &&
                             canvasState.annotations[canvasState.selectedAnnotation].object.type == 'polygon') {
                             dispatch(setIsEditing(true))
-                            const newCoords = getNormalizedCoords(event);
+                            const newCoords = getNormalizedCoords(event, canvas);
                             dispatch(setPreviousMousePosition(newCoords))
                         } else {
                             const annotationObj = canvasState.annotations[canvasState.hoveringAnnotation].object
@@ -82,7 +83,7 @@ export function editPolyTool(
             break;
 
         case 'mousemove':
-            const newCoords = getNormalizedCoords(event);
+            const newCoords = getNormalizedCoords(event, canvas);
             if (canvasState.isEditing && canvasState.previousMousePosition) {
                 const dx = newCoords.x - canvasState.previousMousePosition.x
                 const dy = newCoords.y - canvasState.previousMousePosition.y

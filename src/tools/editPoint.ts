@@ -14,10 +14,11 @@ import { AnnotationSettingsState } from "@/features/tools/settings";
 import { switchTools } from "./utils";
 
 export function editPointTool(
-    event: React.MouseEvent<HTMLCanvasElement>,
+    event: React.MouseEvent<HTMLDivElement>,
     canvasState: CanvasState,
     settings: AnnotationSettingsState,
     dispatch: Dispatch<Action>,
+    canvas: HTMLCanvasElement
 ) {
     switch (event.type) {
         case 'mousedown':
@@ -60,7 +61,7 @@ export function editPointTool(
             break;
 
         case 'mousemove':
-            const newCoords = getNormalizedCoords(event);
+            const newCoords = getNormalizedCoords(event, canvas);
             dispatch(updateHoveringAnnotation(newCoords))
             if (canvasState.isEditing) { dispatch(moveSelectedPoint(newCoords)) }
             break;

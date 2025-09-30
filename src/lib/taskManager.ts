@@ -15,70 +15,70 @@ import { editPolyTool } from "@/tools/editPoly";
 import { editPoseTool } from "@/tools/editPose";
 import { drawPoseTool } from "@/tools/drawPose";
 
-function isMouseEvent(e: React.MouseEvent<HTMLCanvasElement> | React.KeyboardEvent<HTMLCanvasElement> | React.WheelEvent<HTMLCanvasElement>): e is React.MouseEvent<HTMLCanvasElement> {
+function isMouseEvent(e: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement> | React.WheelEvent<HTMLDivElement>): e is React.MouseEvent<HTMLDivElement> {
     return e.type === 'mousemove' || e.type === 'mousedown' || e.type === 'mouseup';
 }
 
-function isKeyboardEvent(e: React.MouseEvent<HTMLCanvasElement> | React.KeyboardEvent<HTMLCanvasElement> | React.WheelEvent<HTMLCanvasElement>): e is React.KeyboardEvent<HTMLCanvasElement> {
+function isKeyboardEvent(e: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement> | React.WheelEvent<HTMLDivElement>): e is React.KeyboardEvent<HTMLDivElement> {
     return e.type === 'keydown' || e.type === 'keyup';
 }
 
-function isWheelEvent(e: React.MouseEvent<HTMLCanvasElement> | React.KeyboardEvent<HTMLCanvasElement> | React.WheelEvent<HTMLCanvasElement>): e is React.WheelEvent<HTMLCanvasElement> {
+function isWheelEvent(e: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement> | React.WheelEvent<HTMLDivElement>): e is React.WheelEvent<HTMLDivElement> {
     return e.type === 'wheel';
 }
 
-export function TaskManager(e: React.MouseEvent<HTMLCanvasElement> | React.KeyboardEvent<HTMLCanvasElement> | React.WheelEvent<HTMLCanvasElement>, canvasState: CanvasState, settings: AnnotationSettingsState, dispatch: Dispatch<Action>) {
+export function TaskManager(e: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement> | React.WheelEvent<HTMLDivElement>, canvasState: CanvasState, settings: AnnotationSettingsState, dispatch: Dispatch<Action>, canvas: HTMLCanvasElement) {
     if (isWheelEvent(e)) {
-        wheelHandle(e, canvasState, settings, dispatch)
+        wheelHandle(e, canvasState, settings, dispatch, canvas)
     }
     if (isKeyboardEvent(e)) {
-        keyboardHandle(e, canvasState, settings, dispatch)
+        keyboardHandle(e, canvasState, settings, dispatch, canvas)
         return
     }
     if (isMouseEvent(e)) {
         switch (canvasState.selectedTool) {
             case 'SELECT':
-                selectTool(e, canvasState, settings, dispatch);
+                selectTool(e, canvasState, settings, dispatch, canvas);
                 break;
 
             case 'DRAW_RECT':
-                drawRectTool(e, canvasState, settings, dispatch);
+                drawRectTool(e, canvasState, settings, dispatch, canvas);
                 break;
 
             case 'DRAW_POINT':
-                drawPointTool(e, canvasState, settings, dispatch);
+                drawPointTool(e, canvasState, settings, dispatch, canvas);
                 break;
 
             case 'DRAW_POLY':
-                drawPolyTool(e, canvasState, settings, dispatch);
+                drawPolyTool(e, canvasState, settings, dispatch, canvas);
                 break;
 
             case 'DRAW_OBB':
-                drawObbTool(e, canvasState, settings, dispatch);
+                drawObbTool(e, canvasState, settings, dispatch, canvas);
                 break;
 
             case 'DRAW_POSE':
-                drawPoseTool(e, canvasState, settings, dispatch);
+                drawPoseTool(e, canvasState, settings, dispatch, canvas);
                 break;
 
             case 'EDIT_RECT':
-                editRectTool(e, canvasState, settings, dispatch);
+                editRectTool(e, canvasState, settings, dispatch, canvas);
                 break;
 
             case 'EDIT_POINT':
-                editPointTool(e, canvasState, settings, dispatch);
+                editPointTool(e, canvasState, settings, dispatch, canvas);
                 break;
 
             case 'EDIT_OBB':
-                editObbTool(e, canvasState, settings, dispatch)
+                editObbTool(e, canvasState, settings, dispatch, canvas)
                 break;
 
             case 'EDIT_POLY':
-                editPolyTool(e, canvasState, settings, dispatch);
+                editPolyTool(e, canvasState, settings, dispatch, canvas);
                 break;
 
             case 'EDIT_POSE':
-                editPoseTool(e, canvasState, settings, dispatch);
+                editPoseTool(e, canvasState, settings, dispatch, canvas);
                 break;
         }
     }
