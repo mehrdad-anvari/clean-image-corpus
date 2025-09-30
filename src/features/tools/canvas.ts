@@ -319,6 +319,8 @@ export const canvasSlice = createSlice({
                     const nearestKeypoint = Pose.findNearestKeypoint(selectedAnnotationObj, p.x, p.y)
                     if (nearestKeypoint != null)
                         state.hoveringPoseKeypoint = nearestKeypoint
+                    else
+                        state.hoveringPoseKeypoint = -1
                 }
             }
         },

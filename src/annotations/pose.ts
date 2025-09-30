@@ -101,10 +101,10 @@ class Pose {
     }
 
     static moveKeypoint(pose: PoseObject, xt: number, yt: number, keypointIndex: number): PoseObject {
-        const newKeypoints = pose.keypoints
+        const newKeypoints = [...pose.keypoints];
         if (newKeypoints[keypointIndex]) {
-            const p = newKeypoints[keypointIndex]
-            newKeypoints[keypointIndex] = { class_id: p.class_id, x: xt, y: yt, v: p.v }
+            const { class_id, v } = newKeypoints[keypointIndex]; // read values only
+            newKeypoints[keypointIndex] = { class_id: class_id, x: xt, y: yt, v: v }
             return { ...pose, keypoints: newKeypoints }
         }
         return pose
