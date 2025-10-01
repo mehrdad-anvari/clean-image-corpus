@@ -6,6 +6,7 @@ import { AnnotationObject, OrientedRectangleObject, Point, PointObject, PolygonO
 import OrientedRectangle from "@/annotations/orientedRectangle";
 import Polygon from "@/annotations/polygon";
 import Pose from "@/annotations/pose";
+import { stat } from "fs";
 
 interface AnnotationsSnapshot { [key: number]: { object: AnnotationObject } };
 
@@ -377,6 +378,11 @@ export const canvasSlice = createSlice({
                             state.annotations[state.selectedAnnotation]['object'] = newRect
                         }
                         break;
+                    case 'pose':
+                        const newPose = Pose.moveVertex(selectedAnnotationObj, p.x, p.y, state.selectedVertex)
+                        if (newPose != undefined){
+                            state.annotations[state.selectedAnnotation]['object'] = newPose
+                        }
                     case 'line':
                         break
                     case 'keypoint':

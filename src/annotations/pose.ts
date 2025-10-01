@@ -9,6 +9,30 @@ class Pose {
         return { ...pose, x1: pose.x1 + dx, x2: pose.x2 + dx, y1: pose.y1 + dy, y2: pose.y2 + dy, keypoints: newKeypoints }
     }
 
+    static moveVertex(pose: PoseObject, x: number, y: number, vertex: number | null): PoseObject | undefined {
+            if (vertex == null) { return }
+            const newRect = { ...pose }
+            switch (vertex) {
+                case 0:
+                    newRect.x1 = x
+                    newRect.y1 = y
+                    break;
+                case 1:
+                    newRect.x2 = x
+                    newRect.y1 = y
+                    break;
+                case 2:
+                    newRect.x2 = x
+                    newRect.y2 = y
+                    break;
+                case 3:
+                    newRect.x1 = x
+                    newRect.y2 = y
+                    break;
+            }
+            return newRect
+        }
+
     static draw(pose: PoseObject, canvas: HTMLCanvasElement, highlight: boolean = false, vertexIndex: number | null = null, keypointIndex: number | null = null, skeleton: [number, number][], color: number[] = [255, 0, 0]) {
         const width = canvas.width;
         const height = canvas.height;

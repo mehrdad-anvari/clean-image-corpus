@@ -84,12 +84,6 @@ export default function CanvasArea({ imageSrc }: Props) {
          onWheel={handleWheel}>
       <canvas
         ref={canvasRef}
-        // onMouseDown={handleMouseDown}
-        // onMouseMove={handleMouseMove}
-        // onMouseUp={handleMouseUp}
-        // onKeyDown={handleKeyboard}
-        // onContextMenu={handleContextMenu}
-        // onWheel={handleWheel}
         tabIndex={0}
         className="outline-none border border-zinc-700 shadow-md bg-zinc-900 focus:ring-1 focus:ring-blue-500 "
         style={{
