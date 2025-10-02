@@ -298,7 +298,7 @@ export const canvasSlice = createSlice({
                         nearestVertex = Pose.findNearestVertex(selectedAnnotationObj, p.x, p.y)
                         break
                     case 'obb':
-                        nearestVertex = OrientedRectangle.findNearestVertex(selectedAnnotationObj, p.x, p.y)
+                        nearestVertex = OrientedRectangle.findNearestVertex(selectedAnnotationObj, p.x, p.y, 0.02, state.width, state.height)
                         break
                     case 'bbox':
                         nearestVertex = Rectangle.findNearestVertex(selectedAnnotationObj, p.x, p.y);
@@ -333,7 +333,7 @@ export const canvasSlice = createSlice({
                     case 'polygon':
                         break
                     case 'obb':
-                        state.isHoveringHandle = OrientedRectangle.isHoveringHandle(selectedAnnotationObj, p.x, p.y)
+                        state.isHoveringHandle = OrientedRectangle.isHoveringHandle(selectedAnnotationObj, p.x, p.y, 0.02, state.width, state.height)
                         break
                 }
             }
@@ -369,7 +369,7 @@ export const canvasSlice = createSlice({
                         state.annotations[state.selectedAnnotation]['object'] = newPoly
                         break
                     case 'obb':
-                        const newObb = OrientedRectangle.moveVertex(selectedAnnotationObj, p.x, p.y, state.selectedVertex as 0 | 1 | 2 | 3)
+                        const newObb = OrientedRectangle.moveVertex(selectedAnnotationObj, p.x, p.y, state.selectedVertex as 0 | 1 | 2 | 3, state.width, state.height)
                         state.annotations[state.selectedAnnotation]['object'] = newObb
                         break
                     case 'bbox':

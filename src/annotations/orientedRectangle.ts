@@ -8,9 +8,9 @@ type VertexIndex = 0 | 1 | 2 | 3;
 
 class OrientedRectangle {
 
-    static move(obb: OrientedRectangleObject, dx: number, dy: number): OrientedRectangleObject {
+    static move(obb: OrientedRectangleObject, dx: number, dy: number, canvasWidth: number, canvasHeight: number): OrientedRectangleObject {
         let validMove = true;
-        const vertices = this.getVertices(obb)
+        const vertices = this.getVertices(obb, canvasWidth, canvasHeight)
         vertices.forEach(
             (vertex) => {
                 if (!checkValidMove(vertex.x, vertex.y, dx, dy))
@@ -27,8 +27,8 @@ class OrientedRectangle {
         return obb
     }
 
-    static moveVertex(obb: OrientedRectangleObject, x: number, y: number, vertexIndex: VertexIndex): OrientedRectangleObject {
-        const vertices = this.getVertices(obb)
+    static moveVertex(obb: OrientedRectangleObject, x: number, y: number, vertexIndex: VertexIndex, canvasWidth: number, canvasHeight: number): OrientedRectangleObject {
+        const vertices = this.getVertices(obb, canvasWidth, canvasHeight)
         const vertex = vertices[vertexIndex]
 
         const dx = x - vertex.x;
@@ -53,6 +53,20 @@ class OrientedRectangle {
         };
 
         return newObb;
+    }
+
+    static findNearestVertex(obb: OrientedRectangleObject, x: number, y: number, threshold = 0.02, canvasWidth: number, canvasHeight: number): number | null {
+        const verticies = this.getVertices(obb, canvasWidth, canvasHeight)
+        let nearestVertexIndex: number | null = null;
+        let minDist = Infinity;
+        verticies.forEach((vertex, index) => {
+            const dist = Math.hypot(vertex.x - x, vertex.y - y);
+            if (dist < threshold && dist < minDist) {
+                minDist = dist;
+                nearestVertexIndex = index;
+            }
+        });
+        return nearestVertexIndex
     }
 
     private static vertexDirection(vertexIndex: number): { su: number; sv: number } {
@@ -84,25 +98,11 @@ class OrientedRectangle {
         };
     }
 
-    static isHoveringHandle(obb: OrientedRectangleObject, x: number, y: number, threshold = 0.02) {
-        const handlePoint = this.getHandle(obb)
+    static isHoveringHandle(obb: OrientedRectangleObject, x: number, y: number, threshold = 0.02, canvasWidth: number, canvasHeight: number) {
+        const handlePoint = this.getHandle(obb, canvasWidth, canvasHeight)
         const dist = Math.hypot(handlePoint.x - x, handlePoint.y - y);
         if (dist < threshold) return true
         return false
-    }
-
-    static findNearestVertex(obb: OrientedRectangleObject, x: number, y: number, threshold = 0.02): number | null {
-        const verticies = this.getVertices(obb)
-        let nearestVertexIndex: number | null = null;
-        let minDist = Infinity;
-        verticies.forEach((vertex, index) => {
-            const dist = Math.hypot(vertex.x - x, vertex.y - y);
-            if (dist < threshold && dist < minDist) {
-                minDist = dist;
-                nearestVertexIndex = index;
-            }
-        });
-        return nearestVertexIndex
     }
 
     static draw(obb: OrientedRectangleObject, canvas: HTMLCanvasElement, highlight: boolean = false, vertex_index: number | null = null, highlightHandle: boolean = false, color: number[] = [255, 0, 0]) {
@@ -128,7 +128,7 @@ class OrientedRectangle {
         ctx.rect(x3 - 2, y3 - 2, 4, 4);
         ctx.fill();
         if (vertex_index != null) {
-            const vertex_position = this.getVertex(obb, vertex_index as VertexIndex);
+            const vertex_position = this.getVertex(obb, vertex_index as VertexIndex, width, height);
             if (vertex_position) {
                 ctx.rect(vertex_position.x * width - 5, vertex_position.y * height - 5, 10, 10);
 
@@ -190,8 +190,8 @@ class OrientedRectangle {
 
     static getHandle(
         obb: OrientedRectangleObject,
-        canvasWidth: number = 1,
-        canvasHeight: number = 1
+        canvasWidth: number,
+        canvasHeight: number
     ): Vertex {
         // Convert normalized params to pixel space
         const xc_px = obb.xc * canvasWidth;
@@ -209,8 +209,8 @@ class OrientedRectangle {
     static getVertex(
         obb: OrientedRectangleObject,
         index: VertexIndex,
-        canvasWidth: number = 1,
-        canvasHeight: number = 1
+        canvasWidth: number,
+        canvasHeight: number
     ): Vertex {
         // Convert normalized params to pixel space
         const xc_px = obb.xc * canvasWidth;
@@ -246,8 +246,8 @@ class OrientedRectangle {
 
     static getVertices(
         obb: OrientedRectangleObject,
-        canvasWidth: number = 1,
-        canvasHeight: number = 1
+        canvasWidth: number,
+        canvasHeight: number
     ): Vertex[] {
         return [0, 1, 2, 3].map(index => this.getVertex(obb, index as VertexIndex, canvasWidth, canvasHeight));
     }
