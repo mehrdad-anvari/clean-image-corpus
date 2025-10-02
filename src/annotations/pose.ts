@@ -5,33 +5,47 @@ type VertexIndex = 0 | 1 | 2 | 3;
 class Pose {
 
     static move(pose: PoseObject, dx: number, dy: number): PoseObject {
-        const newKeypoints = pose.keypoints.map((value) => { return { ...value, x: value.x + dx, y: value.y + dy } })
-        return { ...pose, x1: pose.x1 + dx, x2: pose.x2 + dx, y1: pose.y1 + dy, y2: pose.y2 + dy, keypoints: newKeypoints }
+        // Calculate new positions
+        const newKeypoints = pose.keypoints.map((value) => ({ ...value, x: value.x + dx, y: value.y + dy }));
+        const newX1 = pose.x1 + dx;
+        const newX2 = pose.x2 + dx;
+        const newY1 = pose.y1 + dy;
+        const newY2 = pose.y2 + dy;
+        // Check bounds for all keypoints and rectangle vertices
+        const allInBounds = [newX1, newX2, newY1, newY2].every(v => v >= 0 && v <= 1)
+            && newKeypoints.every(kp => kp.x >= 0 && kp.x <= 1 && kp.y >= 0 && kp.y <= 1);
+        if (!allInBounds) return pose;
+        return { ...pose, x1: newX1, x2: newX2, y1: newY1, y2: newY2, keypoints: newKeypoints };
     }
 
     static moveVertex(pose: PoseObject, x: number, y: number, vertex: number | null): PoseObject | undefined {
-            if (vertex == null) { return }
-            const newRect = { ...pose }
-            switch (vertex) {
-                case 0:
-                    newRect.x1 = x
-                    newRect.y1 = y
-                    break;
-                case 1:
-                    newRect.x2 = x
-                    newRect.y1 = y
-                    break;
-                case 2:
-                    newRect.x2 = x
-                    newRect.y2 = y
-                    break;
-                case 3:
-                    newRect.x1 = x
-                    newRect.y2 = y
-                    break;
-            }
-            return newRect
+        if (vertex == null) { return; }
+        // Ensure new vertex is in bounds
+        if (x < 0 || x > 1 || y < 0 || y > 1) return pose;
+        const newRect = { ...pose };
+        switch (vertex) {
+            case 0:
+                newRect.x1 = x;
+                newRect.y1 = y;
+                break;
+            case 1:
+                newRect.x2 = x;
+                newRect.y1 = y;
+                break;
+            case 2:
+                newRect.x2 = x;
+                newRect.y2 = y;
+                break;
+            case 3:
+                newRect.x1 = x;
+                newRect.y2 = y;
+                break;
         }
+        // Check all rectangle vertices are in bounds
+        const verts = Pose.getVertices(newRect);
+        if (!verts.every(v => v.x >= 0 && v.x <= 1 && v.y >= 0 && v.y <= 1)) return pose;
+        return newRect;
+    }
 
     static draw(pose: PoseObject, canvas: HTMLCanvasElement, highlight: boolean = false, vertexIndex: number | null = null, keypointIndex: number | null = null, skeleton: [number, number][], color: number[] = [255, 0, 0]) {
         const width = canvas.width;
@@ -125,13 +139,15 @@ class Pose {
     }
 
     static moveKeypoint(pose: PoseObject, xt: number, yt: number, keypointIndex: number): PoseObject {
+        // Ensure new keypoint is in bounds
+        if (xt < 0 || xt > 1 || yt < 0 || yt > 1) return pose;
         const newKeypoints = [...pose.keypoints];
         if (newKeypoints[keypointIndex]) {
-            const { class_id, v } = newKeypoints[keypointIndex]; // read values only
-            newKeypoints[keypointIndex] = { class_id: class_id, x: xt, y: yt, v: v }
-            return { ...pose, keypoints: newKeypoints }
+            const { class_id, v } = newKeypoints[keypointIndex];
+            newKeypoints[keypointIndex] = { class_id: class_id, x: xt, y: yt, v: v };
+            return { ...pose, keypoints: newKeypoints };
         }
-        return pose
+        return pose;
     }
 
     static findNearestVertex(pose: PoseObject, x: number, y: number, threshold = 0.02): number | null {

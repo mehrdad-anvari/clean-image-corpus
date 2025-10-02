@@ -385,8 +385,6 @@ export const canvasSlice = createSlice({
                         }
                     case 'line':
                         break
-                    case 'keypoint':
-                        break
                 }
 
             }

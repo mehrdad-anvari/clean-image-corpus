@@ -25,8 +25,12 @@ export function editPointTool(
             if (event.button == 0) {
                 if (canvasState.hoveringAnnotation != -1) {
                     const annotationObj = canvasState.annotations[canvasState.hoveringAnnotation].object
-                    switchTools(annotationObj.type, annotationObj.class_id, dispatch)
-                    dispatch(selectAnnotationFromHover())
+                    if (canvasState.selectedAnnotation == canvasState.hoveringAnnotation) {
+                        dispatch(setIsEditing(true))
+                    } else {
+                        switchTools(annotationObj.type, annotationObj.class_id, dispatch)
+                        dispatch(selectAnnotationFromHover())
+                    }
                 } else {
                     dispatch(setSelectedTool('SELECT'))
                     dispatch(setIsEditing(false))

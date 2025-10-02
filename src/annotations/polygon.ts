@@ -4,11 +4,14 @@ import { PolygonObject, Vertex } from "@/interfaces";
 class Polygon {
 
     static move(poly: PolygonObject, dx: number, dy: number): PolygonObject {
-        const newShell = poly.shell.map((value) => { return { x: value.x + dx, y: value.y + dy } as Vertex })
-        return { ...poly, shell: newShell }
+        const newShell = poly.shell.map((value) => ({ x: value.x + dx, y: value.y + dy } as Vertex));
+        // Check bounds for all vertices
+        const allInBounds = newShell.every(v => v.x >= 0 && v.x <= 1 && v.y >= 0 && v.y <= 1);
+        if (!allInBounds) return poly;
+        return { ...poly, shell: newShell };
     }
 
-    static draw(poly: PolygonObject, canvas: HTMLDivElement, highlight: boolean = false, vertexIndex: number | null = null, color: number[] = [255, 0, 0]) {
+    static draw(poly: PolygonObject, canvas: HTMLCanvasElement, highlight: boolean = false, vertexIndex: number | null = null, color: number[] = [255, 0, 0]) {
         const width = canvas.width;
         const height = canvas.height;
         const ctx = canvas.getContext("2d");
@@ -59,13 +62,18 @@ class Polygon {
     }
 
     static moveVertex(poly: PolygonObject, x: number, y: number, vertexIndex: number = -1): PolygonObject {
-        const newShell = [...poly.shell]
+        // Ensure new vertex is in bounds
+        if (x < 0 || x > 1 || y < 0 || y > 1) return poly;
+        const newShell = [...poly.shell];
         if (vertexIndex == -1) {
-            vertexIndex = newShell.length - 1
+            vertexIndex = newShell.length - 1;
         }
-        if (newShell[vertexIndex])
-            newShell[vertexIndex] = { x, y }
-        return { ...poly, shell: newShell }
+        if (newShell[vertexIndex]) {
+            newShell[vertexIndex] = { x, y };
+            // Check all vertices are in bounds
+            if (!newShell.every(v => v.x >= 0 && v.x <= 1 && v.y >= 0 && v.y <= 1)) return poly;
+        }
+        return { ...poly, shell: newShell };
     }
 
     static findNearestVertex(poly: PolygonObject, x: number, y: number, threshold = 0.02): number | null {

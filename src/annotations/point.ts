@@ -2,7 +2,10 @@ import { PointObject } from "@/interfaces";
 
 class Keypoint {
     static move(point: PointObject, x: number, y: number): PointObject {
-        return { ...point, x, y };
+        // Clamp x and y individually if out of bounds
+        const newX = (x >= 0 && x <= 1) ? x : point.x;
+        const newY = (y >= 0 && y <= 1) ? y : point.y;
+        return { ...point, x: newX, y: newY };
     }
 
     static isNear(point: PointObject, x: number, y: number, threshold: number = 0.02): boolean {
@@ -12,7 +15,7 @@ class Keypoint {
 
     static draw(
         point: PointObject,
-        canvas: HTMLDivElement,
+        canvas: HTMLCanvasElement,
         highlight: boolean = false,
         color: number[] = [255, 0, 0]
     ) {
