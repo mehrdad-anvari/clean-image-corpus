@@ -105,14 +105,14 @@ class OrientedRectangle {
         return nearestVertexIndex
     }
 
-    static draw(obb: OrientedRectangleObject, canvas: HTMLDivElement, highlight: boolean = false, vertex_index: number | null = null, highlightHandle: boolean = false, color: number[] = [255, 0, 0]) {
+    static draw(obb: OrientedRectangleObject, canvas: HTMLCanvasElement, highlight: boolean = false, vertex_index: number | null = null, highlightHandle: boolean = false, color: number[] = [255, 0, 0]) {
         const width = canvas.width;
         const height = canvas.height;
         const ctx = canvas.getContext("2d");
         if (ctx == null) { return }
         ctx.strokeStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}, 1)`;
 
-        const vertices = this.getVertices(obb)
+        const vertices = this.getVertices(obb, width, height);
         const x0 = vertices[0].x * width, y0 = vertices[0].y * height;
         const x1 = vertices[1].x * width, y1 = vertices[1].y * height;
         const x2 = vertices[2].x * width, y2 = vertices[2].y * height;
@@ -138,7 +138,7 @@ class OrientedRectangle {
         ctx.closePath()
         // Draw Handle
         ctx.beginPath()
-        const handlePoint = this.getHandle(obb)
+        const handlePoint = this.getHandle(obb, width, height)
         ctx.arc(handlePoint.x * width, handlePoint.y * height, 3, 0, 2 * Math.PI);
         ctx.fill();
         ctx.beginPath()
@@ -188,37 +188,68 @@ class OrientedRectangle {
         );
     }
 
-    static getHandle(obb: OrientedRectangleObject): Vertex {
-        const cos = Math.cos(obb.alpha)
-        const sin = Math.sin(obb.alpha)
-        const xc = obb.xc
-        const yc = obb.yc
-        const L = obb.w / 3
-
-        return { x: xc + L * cos, y: yc + L * sin }
+    static getHandle(
+        obb: OrientedRectangleObject,
+        canvasWidth: number = 1,
+        canvasHeight: number = 1
+    ): Vertex {
+        // Convert normalized params to pixel space
+        const xc_px = obb.xc * canvasWidth;
+        const yc_px = obb.yc * canvasHeight;
+        const w_px = obb.w * canvasWidth;
+        const cos = Math.cos(obb.alpha);
+        const sin = Math.sin(obb.alpha);
+        const L = w_px / 3;
+        const x_px = xc_px + L * cos;
+        const y_px = yc_px + L * sin;
+        // Normalize back to [0, 1]
+        return { x: x_px / canvasWidth, y: y_px / canvasHeight };
     }
 
-    static getVertex(obb: OrientedRectangleObject, index: VertexIndex): Vertex {
-        const cos = Math.cos(obb.alpha)
-        const sin = Math.sin(obb.alpha)
-        const xc = obb.xc
-        const yc = obb.yc
-        const dw = obb.w * 0.5;
-        const dh = obb.h * 0.5;
+    static getVertex(
+        obb: OrientedRectangleObject,
+        index: VertexIndex,
+        canvasWidth: number = 1,
+        canvasHeight: number = 1
+    ): Vertex {
+        // Convert normalized params to pixel space
+        const xc_px = obb.xc * canvasWidth;
+        const yc_px = obb.yc * canvasHeight;
+        const w_px = obb.w * canvasWidth;
+        const h_px = obb.h * canvasHeight;
+        const cos = Math.cos(obb.alpha);
+        const sin = Math.sin(obb.alpha);
+        const dw = w_px * 0.5;
+        const dh = h_px * 0.5;
+        let x_px, y_px;
         switch (index) {
             case 0:
-                return { x: xc - dw * cos + dh * sin, y: yc - dw * sin - dh * cos }
+                x_px = xc_px - dw * cos + dh * sin;
+                y_px = yc_px - dw * sin - dh * cos;
+                break;
             case 1:
-                return { x: xc + dw * cos + dh * sin, y: yc + dw * sin - dh * cos }
+                x_px = xc_px + dw * cos + dh * sin;
+                y_px = yc_px + dw * sin - dh * cos;
+                break;
             case 2:
-                return { x: xc + dw * cos - dh * sin, y: yc + dw * sin + dh * cos }
+                x_px = xc_px + dw * cos - dh * sin;
+                y_px = yc_px + dw * sin + dh * cos;
+                break;
             case 3:
-                return { x: xc - dw * cos - dh * sin, y: yc - dw * sin + dh * cos }
+                x_px = xc_px - dw * cos - dh * sin;
+                y_px = yc_px - dw * sin + dh * cos;
+                break;
         }
+        // Normalize back to [0, 1]
+        return { x: x_px / canvasWidth, y: y_px / canvasHeight };
     }
 
-    static getVertices(obb: OrientedRectangleObject): Vertex[] {
-        return [0, 1, 2, 3].map(index => this.getVertex(obb, index as VertexIndex));
+    static getVertices(
+        obb: OrientedRectangleObject,
+        canvasWidth: number = 1,
+        canvasHeight: number = 1
+    ): Vertex[] {
+        return [0, 1, 2, 3].map(index => this.getVertex(obb, index as VertexIndex, canvasWidth, canvasHeight));
     }
 
     static longestDimSize(obb: OrientedRectangleObject): number {
