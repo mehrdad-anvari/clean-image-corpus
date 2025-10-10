@@ -9,47 +9,51 @@ function checkValidMove(x: number, y: number, dx: number, dy: number): boolean {
 class Rectangle {
 
     static move(rect: RectangleObject, dx: number, dy: number): RectangleObject {
-        let validMove = true;
-        [1, 2, 3, 4].forEach(
-            (value) => {
-                const vertex = this.giveVertex(rect, value)
-                if (vertex && !checkValidMove(vertex.x, vertex.y, dx, dy))
-                    validMove = false
-            }
-        )
-        if (validMove) {
-            const newRect = { ...rect }
-            newRect.x1 = newRect.x1 + dx
-            newRect.x2 = newRect.x2 + dx
-            newRect.y1 = newRect.y1 + dy
-            newRect.y2 = newRect.y2 + dy
-            return newRect
-        }
-        return rect
+        const newRect = { ...rect };
+        
+        // Determine allowable dx range so both x1+dx and x2+dx stay in [0,1]
+        const minDx = Math.max(-rect.x1, -rect.x2); // lower bound
+        const maxDx = Math.min(1 - rect.x1, 1 - rect.x2); // upper bound
+        // Choose dx' as the closest value to requested dx inside [minDx, maxDx]
+        const dx2 = Math.min(maxDx, Math.max(minDx, dx));
+
+        // Same for dy
+        const minDy = Math.max(-rect.y1, -rect.y2);
+        const maxDy = Math.min(1 - rect.y1, 1 - rect.y2);
+        const dy2 = Math.min(maxDy, Math.max(minDy, dy));
+
+        newRect.x1 = rect.x1 + dx2;
+        newRect.x2 = rect.x2 + dx2;
+        newRect.y1 = rect.y1 + dy2;
+        newRect.y2 = rect.y2 + dy2;
+        return newRect;
     }
 
     static moveVertex(rect: RectangleObject, x: number, y: number, vertex: number | null): RectangleObject | undefined {
         if (vertex == null) { return }
-        const newRect = { ...rect }
+        const clamp = (v: number) => Math.min(1, Math.max(0, v));
+        const cx = clamp(x);
+        const cy = clamp(y);
+        const newRect = { ...rect };
         switch (vertex) {
             case 1:
-                newRect.x1 = x
-                newRect.y1 = y
+                newRect.x1 = cx;
+                newRect.y1 = cy;
                 break;
             case 2:
-                newRect.x2 = x
-                newRect.y1 = y
+                newRect.x2 = cx;
+                newRect.y1 = cy;
                 break;
             case 3:
-                newRect.x2 = x
-                newRect.y2 = y
+                newRect.x2 = cx;
+                newRect.y2 = cy;
                 break;
             case 4:
-                newRect.x1 = x
-                newRect.y2 = y
+                newRect.x1 = cx;
+                newRect.y2 = cy;
                 break;
         }
-        return newRect
+        return newRect;
     }
 
     static findNearestVertex(rect: RectangleObject, x: number, y: number, threshold = 0.02): number | null {
