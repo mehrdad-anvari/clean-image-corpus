@@ -193,21 +193,29 @@ export const canvasSlice = createSlice({
             const obb = state.annotations[state.lastIndex - 1].object
             if (obb.type != 'obb') return
             const p = action.payload
-            const xs = p.x > obb.xc ? obb.xc - obb.w / 2 : obb.xc + obb.w / 2
-            const ys = p.y > obb.yc ? obb.yc - obb.h / 2 : obb.yc + obb.h / 2
-            const newXc = (p.x + xs) / 2
-            const newYc = (p.y + ys) / 2
-            const newW = Math.abs(xs - p.x)
-            const newH = Math.abs(ys - p.y)
-            state.annotations[state.lastIndex - 1].object = {
-                type: 'obb',
-                class_id: obb.class_id,
-                xc: newXc,
-                yc: newYc,
-                w: newW,
-                h: newH,
-                alpha: 0
+            
+            const xs = p.x > obb.xc ? 'right' : 'left';
+            const ys = p.y > obb.yc ? 'bottom' : 'top';
+            let ind: 0|1|2|3 = 0
+            switch (xs + "-" + ys) {
+                case "left-top":
+                    ind = 0;
+                    break
+                case "right-top":
+                    ind = 1;
+                    break;
+                case "right-bottom":
+                    ind = 2;
+                    break;
+                case "left-bottom":
+                    ind = 3;
+                    break;
+                default:
+                    ind = 0;
             }
+            const newObb = OrientedRectangle.moveVertex(obb, p.x, p.y, ind, state.width, state.height)
+
+            state.annotations[state.lastIndex - 1].object = newObb
         },
         updateDrawPoly: (state, action: PayloadAction<Point>) => {
             const poly = state.annotations[state.lastIndex - 1].object
@@ -260,7 +268,7 @@ export const canvasSlice = createSlice({
                         }
                         break
                     case 'pose':
-                        if (Pose.containPoint(annotation['object'], p.x, p.y)){
+                        if (Pose.containPoint(annotation['object'], p.x, p.y)) {
                             state.hoveringAnnotation = Number(index)
                         }
                         break
@@ -380,7 +388,7 @@ export const canvasSlice = createSlice({
                         break;
                     case 'pose':
                         const newPose = Pose.moveVertex(selectedAnnotationObj, p.x, p.y, state.selectedVertex)
-                        if (newPose != undefined){
+                        if (newPose != undefined) {
                             state.annotations[state.selectedAnnotation]['object'] = newPose
                         }
                     case 'line':
@@ -453,7 +461,7 @@ export const { startDrawRect, updateDrawRect, updateHoveringAnnotation,
     drawPoint, moveSelectedPoint, setPreviousMousePosition, resetPreviousMousePosition,
     zoomIn, zoomOut, setOffsets, startDrawObb, updateDrawObb, updateHoveringHandle, setHandle,
     startDrawPoly, updateDrawPoly, updateDrawPolyVertex, resetHoveringVertex, setDrawingKeypointIndex,
-    startDrawPoseBbox, startDrawPosePoint, updateDrawPoseBbox, updateDrawPoseKeypoint, 
+    startDrawPoseBbox, startDrawPosePoint, updateDrawPoseBbox, updateDrawPoseKeypoint,
     updateHoveringPoseKeypoint, resetSelectedKeypoint, selectKeypointFromHover } = canvasSlice.actions
 
 export default canvasSlice.reducer
