@@ -6,9 +6,9 @@ import { AnnotationObject, OrientedRectangleObject, Point, PointObject, PolygonO
 import OrientedRectangle from "@/annotations/orientedRectangle";
 import Polygon from "@/annotations/polygon";
 import Pose from "@/annotations/pose";
-import { stat } from "fs";
 
 interface AnnotationsSnapshot { [key: number]: { object: AnnotationObject } };
+const clamp = (v: number) => Math.min(1, Math.max(0, v));
 
 export interface CanvasState {
     selectedAnnotation: number,
@@ -134,10 +134,10 @@ export const canvasSlice = createSlice({
             const newPose: PoseObject = {
                 type: 'pose',
                 class_id: classID,
-                x1: p.x,
-                y1: p.y,
-                x2: p.x,
-                y2: p.y,
+                x1: clamp(p.x),
+                y1: clamp(p.y),
+                x2: clamp(p.x),
+                y2: clamp(p.y),
                 keypoints: []
             }
             state.annotations[state.lastIndex] = { object: newPose }
@@ -149,7 +149,7 @@ export const canvasSlice = createSlice({
             const p = action.payload.mousePosition
             const newPose = state.annotations[state.selectedAnnotation].object as PoseObject
             const newKeypoints = newPose.keypoints
-            newKeypoints.push({ class_id: id, x: p.x, y: p.y, v: true })
+            newKeypoints.push({ class_id: id, x: clamp(p.x), y: clamp(p.y), v: true })
             state.annotations[state.selectedAnnotation].object = { ...newPose, keypoints: newKeypoints } as PoseObject
         },
         resetHistory: (state) => {
@@ -233,25 +233,14 @@ export const canvasSlice = createSlice({
             const pose = state.annotations[state.lastIndex - 1].object
             if (pose.type != 'pose') return
             const p = action.payload
-            state.annotations[state.lastIndex - 1].object = {
-                type: 'pose',
-                class_id: pose.class_id,
-                x1: pose.x1,
-                y1: pose.y1,
-                x2: p.x,
-                y2: p.y,
-                keypoints: pose.keypoints
-            }
+            state.annotations[state.lastIndex - 1].object = Pose.moveVertex(pose, p.x, p.y, 2)
         },
         updateDrawPoseKeypoint: (state, action: PayloadAction<Point>) => {
             if (state.annotations[state.lastIndex - 1].object.type != 'pose') return
-            const poly = state.annotations[state.lastIndex - 1].object as PoseObject
-            if (!poly.keypoints[state.drawingPoseKeypointIndex]) return
-            const newKeypoints = poly.keypoints
+            const pose = state.annotations[state.lastIndex - 1].object as PoseObject
+            if (!pose.keypoints[state.drawingPoseKeypointIndex]) return
             const p = action.payload
-            const kp = newKeypoints[state.drawingPoseKeypointIndex]
-            newKeypoints[state.drawingPoseKeypointIndex] = { class_id: kp.class_id, x: p.x, y: p.y, v: kp.v }
-            const newPose = { ...state.annotations[state.lastIndex - 1].object, keypoints: newKeypoints }
+            const newPose = Pose.moveKeypoint(pose, p.x, p.y, state.drawingPoseKeypointIndex)
             state.annotations[state.lastIndex - 1].object = newPose
         },
         updateAnnotation: (state, action: PayloadAction<{ updatedAnnotation: AnnotationObject, Index: number }>) => {
