@@ -62,7 +62,7 @@ export function drawPolyTool(
                 (canvasState.isDrawing && selectedAnnotation && selectedAnnotation.type == 'polygon') ?
                     Polygon.isNearVertex(selectedAnnotation, newCoords.x, newCoords.y, 0) : false
             );
-            if (canvasState.isDrawing && canvasState.hoveringVertex != -1) {
+            if (canvasState.isDrawing) {
                 if (isNearStart && selectedAnnotation.type == 'polygon' && selectedAnnotation.shell.length > 3)
                     dispatch(updateDrawPolyVertex(selectedAnnotation.shell[0]))
                 else

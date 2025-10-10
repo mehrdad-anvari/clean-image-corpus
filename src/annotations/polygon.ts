@@ -4,10 +4,29 @@ import { PolygonObject, Vertex } from "@/interfaces";
 class Polygon {
 
     static move(poly: PolygonObject, dx: number, dy: number): PolygonObject {
-        const newShell = poly.shell.map((value) => ({ x: value.x + dx, y: value.y + dy } as Vertex));
-        // Check bounds for all vertices
-        const allInBounds = newShell.every(v => v.x >= 0 && v.x <= 1 && v.y >= 0 && v.y <= 1);
-        if (!allInBounds) return poly;
+        // For each vertex, allowable dx range is [-x, 1-x], dy range is [-y, 1-y].
+        // Intersect ranges across all vertices and clamp requested dx/dy to the intersection.
+        if (!poly.shell || poly.shell.length === 0) return poly;
+
+        const dxLowers = poly.shell.map(v => -v.x);
+        const dxUppers = poly.shell.map(v => 1 - v.x);
+        const dyLowers = poly.shell.map(v => -v.y);
+        const dyUppers = poly.shell.map(v => 1 - v.y);
+
+        const minDx = Math.max(...dxLowers);
+        const maxDx = Math.min(...dxUppers);
+        const minDy = Math.max(...dyLowers);
+        const maxDy = Math.min(...dyUppers);
+
+        const clampInRange = (v: number, lo: number, hi: number) => {
+            if (lo > hi) return 0; // no allowable movement
+            return Math.min(hi, Math.max(lo, v));
+        }
+
+        const dx2 = clampInRange(dx, minDx, maxDx);
+        const dy2 = clampInRange(dy, minDy, maxDy);
+
+        const newShell = poly.shell.map((value) => ({ x: value.x + dx2, y: value.y + dy2 } as Vertex));
         return { ...poly, shell: newShell };
     }
 
@@ -62,16 +81,16 @@ class Polygon {
     }
 
     static moveVertex(poly: PolygonObject, x: number, y: number, vertexIndex: number = -1): PolygonObject {
-        // Ensure new vertex is in bounds
-        if (x < 0 || x > 1 || y < 0 || y > 1) return poly;
+        // Clamp x and y to [0,1] and apply
+        const clamp = (v: number) => Math.min(1, Math.max(0, v));
+        const cx = clamp(x);
+        const cy = clamp(y);
         const newShell = [...poly.shell];
         if (vertexIndex == -1) {
             vertexIndex = newShell.length - 1;
         }
         if (newShell[vertexIndex]) {
-            newShell[vertexIndex] = { x, y };
-            // Check all vertices are in bounds
-            if (!newShell.every(v => v.x >= 0 && v.x <= 1 && v.y >= 0 && v.y <= 1)) return poly;
+            newShell[vertexIndex] = { x: cx, y: cy };
         }
         return { ...poly, shell: newShell };
     }
