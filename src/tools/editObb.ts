@@ -102,7 +102,8 @@ export function editObbTool(
                 const dx = newCoords.x - obb.xc
                 const dy = newCoords.y - obb.yc
                 const newAlpha = Math.atan2(dy, dx)
-                const newObb = { ...obb, alpha: newAlpha }
+                const delatAlpha = newAlpha - obb.alpha;
+                const newObb = OrientedRectangle.rotate(obb, delatAlpha, canvas.width, canvas.height)
                 dispatch(updateAnnotation({ updatedAnnotation: newObb, Index: canvasState.selectedAnnotation }))
             }
             dispatch(updateHoveringAnnotation(newCoords))

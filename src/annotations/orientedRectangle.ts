@@ -91,11 +91,28 @@ class OrientedRectangle {
         return { du, dv };
     }
 
-    static rotate(obb: OrientedRectangleObject, deltaAngle: number): OrientedRectangleObject {
-        return {
-            ...obb,
-            alpha: obb.alpha + deltaAngle,
-        };
+    static rotate(obb: OrientedRectangleObject, delatAlpha: number, canvasWidth: number, canvasHeight: number): OrientedRectangleObject {
+        // Try full rotation first
+        const fullObb = { ...obb, alpha: obb.alpha + delatAlpha };
+        const fullVerts = this.getVertices(fullObb, canvasWidth, canvasHeight);
+        const fullInBounds = fullVerts.every(v => v.x >= 0 && v.x <= 1 && v.y >= 0 && v.y <= 1);
+        if (fullInBounds) return fullObb;
+
+        // If full rotation would go out of bounds, binary-search the maximum allowed fraction
+        // of delatAlpha in [0, 1] that keeps all vertices inside.
+        let low = 0; let high = 1;
+        const ITER = 10;
+        for (let i = 0; i < ITER; i++) {
+            const mid = (low + high) / 2;
+            const testObb = { ...obb, alpha: obb.alpha + delatAlpha * mid };
+            const verts = this.getVertices(testObb, canvasWidth, canvasHeight);
+            const ok = verts.every(v => v.x >= 0 && v.x <= 1 && v.y >= 0 && v.y <= 1);
+            if (ok) low = mid; else high = mid;
+        }
+
+        // If no positive fraction is possible, keep original
+        if (low <= 1e-6) return obb;
+        return { ...obb, alpha: obb.alpha + delatAlpha * low };
     }
 
     static isHoveringHandle(obb: OrientedRectangleObject, x: number, y: number, threshold = 0.02, canvasWidth: number, canvasHeight: number) {
