@@ -28,31 +28,45 @@ class OrientedRectangle {
     }
 
     static moveVertex(obb: OrientedRectangleObject, x: number, y: number, vertexIndex: VertexIndex, canvasWidth: number, canvasHeight: number): OrientedRectangleObject {
-        const vertices = this.getVertices(obb, canvasWidth, canvasHeight)
-        const vertex = vertices[vertexIndex]
+        // Clamp input coordinates to [0,1]
+        const targetX = Math.min(1, Math.max(0, x));
+        const targetY = Math.min(1, Math.max(0, y));
 
-        const dx = x - vertex.x;
-        const dy = y - vertex.y;
+        const vertices = this.getVertices(obb, canvasWidth, canvasHeight);
+        const vertex = vertices[vertexIndex];
 
-        const { du, dv } = this.decomposeVector(dx, dy, obb.alpha)
+        const dx = targetX - vertex.x;
+        const dy = targetY - vertex.y;
 
-        const direction = this.vertexDirection(vertexIndex); // returns { su: ±1, sv: ±1 }
-
-        const w = Math.abs(obb.w + du * direction.su);
-        const h = Math.abs(obb.h + dv * direction.sv);
-
-        const xc = obb.xc + dx / 2;
-        const yc = obb.yc + dy / 2;
-
-        const newObb = {
-            ...obb,
-            xc: xc,
-            yc: yc,
-            w: w,
-            h: h,
+        const applyMovement = (fx: number, fy: number) => {
+            const { du, dv } = this.decomposeVector(fx, fy, obb.alpha, canvasWidth, canvasHeight);
+            const direction = this.vertexDirection(vertexIndex); // returns { su: ±1, sv: ±1 }
+            const w = Math.abs(obb.w + du * direction.su);
+            const h = Math.abs(obb.h + dv * direction.sv);
+            const xc = obb.xc + fx/2;
+            const yc = obb.yc + fy/2;
+            return { ...obb, xc, yc, w, h } as OrientedRectangleObject;
         };
 
-        return newObb;
+        // Try full movement first
+        const fullObb = applyMovement(dx, dy);
+        const fullVerts = this.getVertices(fullObb, canvasWidth, canvasHeight);
+        const fullOk = fullVerts.every(v => v.x >= 0 && v.x <= 1 && v.y >= 0 && v.y <= 1);
+        if (fullOk) return fullObb;
+
+        // Binary search for largest fraction in [0,1] that keeps OBB in bounds
+        let low = 0, high = 1;
+        const ITER = 15;
+        for (let i = 0; i < ITER; i++) {
+            const mid = (low + high) / 2;
+            const testObb = applyMovement(dx * mid, dy * mid);
+            const verts = this.getVertices(testObb, canvasWidth, canvasHeight);
+            const ok = verts.every(v => v.x >= 0 && v.x <= 1 && v.y >= 0 && v.y <= 1);
+            if (ok) low = mid; else high = mid;
+        }
+
+        if (low <= 1e-6) return obb; // no allowed movement
+        return applyMovement(dx * low, dy * low);
     }
 
     static findNearestVertex(obb: OrientedRectangleObject, x: number, y: number, threshold = 0.02, canvasWidth: number, canvasHeight: number): number | null {
@@ -79,14 +93,14 @@ class OrientedRectangle {
         }
     }
 
-    private static decomposeVector(dx: number, dy: number, alpha: number) {
+    private static decomposeVector(dx: number, dy: number, alpha: number, canvasWidth: number, canvasHeight: number) {
         const ux = Math.cos(alpha);
         const uy = Math.sin(alpha);
         const vx = -uy;
         const vy = ux;
 
-        const du = dx * ux + dy * uy;
-        const dv = dx * vx + dy * vy;
+        const du = (dx * canvasWidth * ux + dy * canvasHeight * uy) / canvasWidth;
+        const dv = (dx * canvasWidth * vx + dy * canvasHeight * vy) / canvasHeight;
 
         return { du, dv };
     }
