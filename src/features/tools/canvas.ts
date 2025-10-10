@@ -122,8 +122,8 @@ export const canvasSlice = createSlice({
             const newPoint: PointObject = {
                 type: 'keypoint',
                 class_id: classID,
-                x: p.x,
-                y: p.y,
+                x: Math.max(0, Math.min(p.x, 1)),
+                y: Math.max(0, Math.min(p.y, 1))
             }
             state.annotations[state.lastIndex] = { object: newPoint }
             state.lastIndex += 1
