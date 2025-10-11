@@ -1,6 +1,5 @@
 import { Dispatch, Action } from 'redux';
-import { CanvasState, zoomIn, zoomOut } from "@/features/tools/canvas";
-import { AnnotationSettingsState } from "@/features/tools/settings";
+import { zoomIn, zoomOut } from "@/features/tools/canvas";
 
 export function wheelHandle(
     event: React.WheelEvent<HTMLDivElement>,
