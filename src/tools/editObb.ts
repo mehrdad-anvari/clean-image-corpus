@@ -92,7 +92,7 @@ export function editObbTool(
                 const dx = newCoords.x - canvasState.previousMousePosition.x
                 const dy = newCoords.y - canvasState.previousMousePosition.y
                 const obb = canvasState.annotations[canvasState.selectedAnnotation].object as OrientedRectangleObject
-                const newObb = OrientedRectangle.move(obb, dx, dy, canvas.width, canvas.height)
+                const newObb = OrientedRectangle.move(obb, dx, dy)
                 dispatch(updateAnnotation({ updatedAnnotation: newObb, Index: canvasState.selectedAnnotation }))
                 dispatch(setPreviousMousePosition(newCoords))
             }
@@ -103,7 +103,7 @@ export function editObbTool(
                 const dy = newCoords.y - obb.yc
                 const newAlpha = Math.atan2(dy, dx)
                 const delatAlpha = newAlpha - obb.alpha;
-                const newObb = OrientedRectangle.rotate(obb, delatAlpha, canvas.width, canvas.height)
+                const newObb = OrientedRectangle.rotate(obb, delatAlpha)
                 dispatch(updateAnnotation({ updatedAnnotation: newObb, Index: canvasState.selectedAnnotation }))
             }
             dispatch(updateHoveringAnnotation(newCoords))

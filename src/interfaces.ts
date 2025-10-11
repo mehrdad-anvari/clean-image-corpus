@@ -52,6 +52,8 @@ export interface OrientedRectangleObject {
   w: number,
   h: number,
   alpha: number,
+  imgW: number,
+  imgH: number
 }
 
 export interface PolygonObject {

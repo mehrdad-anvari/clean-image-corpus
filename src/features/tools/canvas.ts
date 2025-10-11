@@ -92,7 +92,7 @@ export const canvasSlice = createSlice({
         startDrawObb: (state, action: PayloadAction<{ classID: number, mousePosition: Point }>) => {
             const classID = action.payload.classID
             const p = action.payload.mousePosition
-            const newRect: OrientedRectangleObject = {
+            const newObb: OrientedRectangleObject = {
                 type: 'obb',
                 class_id: classID,
                 xc: p.x,
@@ -100,8 +100,10 @@ export const canvasSlice = createSlice({
                 w: 0,
                 h: 0,
                 alpha: 0,
+                imgW: state.width,
+                imgH: state.height
             }
-            state.annotations[state.lastIndex] = { object: newRect }
+            state.annotations[state.lastIndex] = { object: newObb }
             state.lastIndex += 1
         },
         startDrawPoly: (state, action: PayloadAction<{ classID: number, mousePosition: Point }>) => {
@@ -213,7 +215,7 @@ export const canvasSlice = createSlice({
                 default:
                     ind = 0;
             }
-            const newObb = OrientedRectangle.moveVertex(obb, p.x, p.y, ind, state.width, state.height)
+            const newObb = OrientedRectangle.moveVertex(obb, p.x, p.y, ind)
 
             state.annotations[state.lastIndex - 1].object = newObb
         },
@@ -295,7 +297,7 @@ export const canvasSlice = createSlice({
                         nearestVertex = Pose.findNearestVertex(selectedAnnotationObj, p.x, p.y)
                         break
                     case 'obb':
-                        nearestVertex = OrientedRectangle.findNearestVertex(selectedAnnotationObj, p.x, p.y, 0.02, state.width, state.height)
+                        nearestVertex = OrientedRectangle.findNearestVertex(selectedAnnotationObj, p.x, p.y, 0.02)
                         break
                     case 'bbox':
                         nearestVertex = Rectangle.findNearestVertex(selectedAnnotationObj, p.x, p.y);
@@ -366,7 +368,7 @@ export const canvasSlice = createSlice({
                         state.annotations[state.selectedAnnotation]['object'] = newPoly
                         break
                     case 'obb':
-                        const newObb = OrientedRectangle.moveVertex(selectedAnnotationObj, p.x, p.y, state.selectedVertex as 0 | 1 | 2 | 3, state.width, state.height)
+                        const newObb = OrientedRectangle.moveVertex(selectedAnnotationObj, p.x, p.y, state.selectedVertex as 0 | 1 | 2 | 3)
                         state.annotations[state.selectedAnnotation]['object'] = newObb
                         break
                     case 'bbox':

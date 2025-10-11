@@ -8,9 +8,9 @@ type VertexIndex = 0 | 1 | 2 | 3;
 
 class OrientedRectangle {
 
-    static move(obb: OrientedRectangleObject, dx: number, dy: number, canvasWidth: number, canvasHeight: number): OrientedRectangleObject {
+    static move(obb: OrientedRectangleObject, dx: number, dy: number): OrientedRectangleObject {
         let validMove = true;
-        const vertices = this.getVertices(obb, canvasWidth, canvasHeight)
+        const vertices = this.getVertices(obb)
         vertices.forEach(
             (vertex) => {
                 if (!checkValidMove(vertex.x, vertex.y, dx, dy))
@@ -27,19 +27,19 @@ class OrientedRectangle {
         return obb
     }
 
-    static moveVertex(obb: OrientedRectangleObject, x: number, y: number, vertexIndex: VertexIndex, canvasWidth: number, canvasHeight: number): OrientedRectangleObject {
+    static moveVertex(obb: OrientedRectangleObject, x: number, y: number, vertexIndex: VertexIndex): OrientedRectangleObject {
         // Clamp input coordinates to [0,1]
         const targetX = Math.min(1, Math.max(0, x));
         const targetY = Math.min(1, Math.max(0, y));
 
-        const vertices = this.getVertices(obb, canvasWidth, canvasHeight);
+        const vertices = this.getVertices(obb);
         const vertex = vertices[vertexIndex];
 
         const dx = targetX - vertex.x;
         const dy = targetY - vertex.y;
 
         const applyMovement = (fx: number, fy: number) => {
-            const { du, dv } = this.decomposeVector(fx, fy, obb.alpha, canvasWidth, canvasHeight);
+            const { du, dv } = this.decomposeVector(fx, fy, obb.alpha, obb.imgW, obb.imgH);
             const direction = this.vertexDirection(vertexIndex); // returns { su: ±1, sv: ±1 }
             const w = Math.abs(obb.w + du * direction.su);
             const h = Math.abs(obb.h + dv * direction.sv);
@@ -50,7 +50,7 @@ class OrientedRectangle {
 
         // Try full movement first
         const fullObb = applyMovement(dx, dy);
-        const fullVerts = this.getVertices(fullObb, canvasWidth, canvasHeight);
+        const fullVerts = this.getVertices(fullObb);
         const fullOk = fullVerts.every(v => v.x >= 0 && v.x <= 1 && v.y >= 0 && v.y <= 1);
         if (fullOk) return fullObb;
 
@@ -60,7 +60,7 @@ class OrientedRectangle {
         for (let i = 0; i < ITER; i++) {
             const mid = (low + high) / 2;
             const testObb = applyMovement(dx * mid, dy * mid);
-            const verts = this.getVertices(testObb, canvasWidth, canvasHeight);
+            const verts = this.getVertices(testObb);
             const ok = verts.every(v => v.x >= 0 && v.x <= 1 && v.y >= 0 && v.y <= 1);
             if (ok) low = mid; else high = mid;
         }
@@ -69,8 +69,8 @@ class OrientedRectangle {
         return applyMovement(dx * low, dy * low);
     }
 
-    static findNearestVertex(obb: OrientedRectangleObject, x: number, y: number, threshold = 0.02, canvasWidth: number, canvasHeight: number): number | null {
-        const verticies = this.getVertices(obb, canvasWidth, canvasHeight)
+    static findNearestVertex(obb: OrientedRectangleObject, x: number, y: number, threshold = 0.02): number | null {
+        const verticies = this.getVertices(obb)
         let nearestVertexIndex: number | null = null;
         let minDist = Infinity;
         verticies.forEach((vertex, index) => {
@@ -105,10 +105,10 @@ class OrientedRectangle {
         return { du, dv };
     }
 
-    static rotate(obb: OrientedRectangleObject, delatAlpha: number, canvasWidth: number, canvasHeight: number): OrientedRectangleObject {
+    static rotate(obb: OrientedRectangleObject, delatAlpha: number): OrientedRectangleObject {
         // Try full rotation first
         const fullObb = { ...obb, alpha: obb.alpha + delatAlpha };
-        const fullVerts = this.getVertices(fullObb, canvasWidth, canvasHeight);
+        const fullVerts = this.getVertices(fullObb);
         const fullInBounds = fullVerts.every(v => v.x >= 0 && v.x <= 1 && v.y >= 0 && v.y <= 1);
         if (fullInBounds) return fullObb;
 
@@ -119,7 +119,7 @@ class OrientedRectangle {
         for (let i = 0; i < ITER; i++) {
             const mid = (low + high) / 2;
             const testObb = { ...obb, alpha: obb.alpha + delatAlpha * mid };
-            const verts = this.getVertices(testObb, canvasWidth, canvasHeight);
+            const verts = this.getVertices(testObb);
             const ok = verts.every(v => v.x >= 0 && v.x <= 1 && v.y >= 0 && v.y <= 1);
             if (ok) low = mid; else high = mid;
         }
@@ -143,7 +143,7 @@ class OrientedRectangle {
         if (ctx == null) { return }
         ctx.strokeStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}, 1)`;
 
-        const vertices = this.getVertices(obb, width, height);
+        const vertices = this.getVertices(obb);
         const x0 = vertices[0].x * width, y0 = vertices[0].y * height;
         const x1 = vertices[1].x * width, y1 = vertices[1].y * height;
         const x2 = vertices[2].x * width, y2 = vertices[2].y * height;
@@ -159,7 +159,7 @@ class OrientedRectangle {
         ctx.rect(x3 - 2, y3 - 2, 4, 4);
         ctx.fill();
         if (vertex_index != null) {
-            const vertex_position = this.getVertex(obb, vertex_index as VertexIndex, width, height);
+            const vertex_position = this.getVertex(obb, vertex_index as VertexIndex);
             if (vertex_position) {
                 ctx.rect(vertex_position.x * width - 5, vertex_position.y * height - 5, 10, 10);
 
@@ -239,15 +239,13 @@ class OrientedRectangle {
 
     static getVertex(
         obb: OrientedRectangleObject,
-        index: VertexIndex,
-        canvasWidth: number,
-        canvasHeight: number
+        index: VertexIndex
     ): Vertex {
         // Convert normalized params to pixel space
-        const xc_px = obb.xc * canvasWidth;
-        const yc_px = obb.yc * canvasHeight;
-        const w_px = obb.w * canvasWidth;
-        const h_px = obb.h * canvasHeight;
+        const xc_px = obb.xc * obb.imgW;
+        const yc_px = obb.yc * obb.imgH;
+        const w_px = obb.w * obb.imgW;
+        const h_px = obb.h * obb.imgH;
         const cos = Math.cos(obb.alpha);
         const sin = Math.sin(obb.alpha);
         const dw = w_px * 0.5;
@@ -272,15 +270,13 @@ class OrientedRectangle {
                 break;
         }
         // Normalize back to [0, 1]
-        return { x: x_px / canvasWidth, y: y_px / canvasHeight };
+        return { x: x_px / obb.imgW, y: y_px / obb.imgH };
     }
 
     static getVertices(
-        obb: OrientedRectangleObject,
-        canvasWidth: number,
-        canvasHeight: number
+        obb: OrientedRectangleObject
     ): Vertex[] {
-        return [0, 1, 2, 3].map(index => this.getVertex(obb, index as VertexIndex, canvasWidth, canvasHeight));
+        return [0, 1, 2, 3].map(index => this.getVertex(obb, index as VertexIndex));
     }
 
     static longestDimSize(obb: OrientedRectangleObject): number {
