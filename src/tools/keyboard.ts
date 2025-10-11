@@ -5,10 +5,7 @@ import { AnnotationSettingsState } from "@/features/tools/settings";
 
 export function keyboardHandle(
     event: React.KeyboardEvent<HTMLDivElement>,
-    canvasState: CanvasState,
-    settings: AnnotationSettingsState,
     dispatch: Dispatch<Action>,
-    canvas: HTMLCanvasElement
 ) {
     switch (event.type) {
         case 'keydown':

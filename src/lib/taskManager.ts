@@ -29,10 +29,10 @@ function isWheelEvent(e: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<
 
 export function TaskManager(e: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement> | React.WheelEvent<HTMLDivElement>, canvasState: CanvasState, settings: AnnotationSettingsState, dispatch: Dispatch<Action>, canvas: HTMLCanvasElement) {
     if (isWheelEvent(e)) {
-        wheelHandle(e, canvasState, settings, dispatch, canvas)
+        wheelHandle(e, dispatch)
     }
     if (isKeyboardEvent(e)) {
-        keyboardHandle(e, canvasState, settings, dispatch, canvas)
+        keyboardHandle(e, dispatch)
         return
     }
     if (isMouseEvent(e)) {

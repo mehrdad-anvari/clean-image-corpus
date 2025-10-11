@@ -1,16 +1,11 @@
 import { Vertex, RectangleObject } from "@/interfaces";
 
-function checkValidMove(x: number, y: number, dx: number, dy: number): boolean {
-    if (x + dx < 0 || x + dx > 1 || y + dy < 0 || y + dy > 1)
-        return false
-    return true
-}
 
 class Rectangle {
 
     static move(rect: RectangleObject, dx: number, dy: number): RectangleObject {
         const newRect = { ...rect };
-        
+
         // Determine allowable dx range so both x1+dx and x2+dx stay in [0,1]
         const minDx = Math.max(-rect.x1, -rect.x2); // lower bound
         const maxDx = Math.min(1 - rect.x1, 1 - rect.x2); // upper bound
@@ -109,14 +104,14 @@ class Rectangle {
             ctx.stroke()
         }
         ctx.closePath()
-        
+
         // Draw Bounding Box
         ctx.beginPath()
         ctx.rect(x1, y1, w2, h2);
         if (highlight) {
             ctx.fillStyle = `rgba(${color[0]}, ${color[1]}, ${color[2]}, 0.2)`;
             ctx.fill();
-        } 
+        }
         ctx.stroke();
         ctx.closePath()
     }
