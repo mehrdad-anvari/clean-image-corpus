@@ -28,6 +28,7 @@ export default function AnnotatePage() {
     const [imagesLen, setImagesLen] = useState<number>(0);
     const [isOpen, setIsOpen] = useState(false);
     const [currentIndex, setCurrentIndex] = useState<number>(0);
+    const [exportProgress, setExportProgress] = useState<{ completed: number, total: number, currentFile?: string } | null>(null);
 
 
     const toggleModal = () => {
@@ -124,8 +125,15 @@ export default function AnnotatePage() {
 
     async function handleExport() {
         try {
-            if (rootDirHandle)
-                await saveAnnotationsYOLO(rootDirHandle)
+            if (rootDirHandle) {
+                setExportProgress({ completed: 0, total: 0 });
+                await saveAnnotationsYOLO(rootDirHandle, (completed, total, currentFile) => {
+                    setExportProgress({ completed, total, currentFile });
+                    if (completed === total) {
+                        setTimeout(() => setExportProgress(null), 800);
+                    }
+                });
+            }
         } catch (error) {
             console.log('Error in exporting annotation to yolo format, error: ', error)
         }
@@ -267,6 +275,20 @@ export default function AnnotatePage() {
                     <div className="flex-1 flex w-full items-center justify-center overflow-hidden">
                         <CanvasArea imageSrc={cards[2][1]} />
                     </div>
+
+                    {/* Export progress overlay */}
+                    {exportProgress && exportProgress.total > 0 && (
+                        <div className="absolute left-0 right-0 top-4 flex justify-center pointer-events-none z-50">
+                            <div className="w-full max-w-lg px-4 py-2 pointer-events-auto">
+                                <div className="bg-zinc-900/80 backdrop-blur rounded border border-zinc-700 p-2">
+                                    <div className="text-xs text-zinc-300 mb-1">Exporting {exportProgress.currentFile ?? ''}</div>
+                                    <div className="w-full h-2 bg-zinc-700 rounded">
+                                        <div className="h-2 bg-blue-500 rounded" style={{ width: `${(exportProgress.completed / exportProgress.total) * 100}%` }} />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     <div className="flex w-full items-center justify-between px-4 h-7 bg-zinc-800 text-white border-t border-zinc-700 z-10">
                         <button onClick={handlePrevious} className={`${currentIndex === 0
