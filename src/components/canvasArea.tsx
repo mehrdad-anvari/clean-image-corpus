@@ -81,7 +81,8 @@ export default function CanvasArea({ imageSrc }: Props) {
          onMouseMove={handleMouseMove}
          onMouseUp={handleMouseUp}
          onKeyDown={handleKeyboard}
-         onWheel={handleWheel}>
+         onWheel={handleWheel}
+         onContextMenu={(e) => handleContextMenu(e)}>
       <canvas
         ref={canvasRef}
         tabIndex={0}
