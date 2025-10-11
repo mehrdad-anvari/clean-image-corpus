@@ -14,7 +14,7 @@ import { useSelector } from "react-redux";
 import { RootState, store } from "@/app/store";
 import { loadAnnotations, resetCanvasState, resetHistory } from "@/features/tools/canvas";
 import { saveSettings } from "@/lib/saveSettings";
-import { saveAnnotationsYOLO } from "@/lib/export";
+import { saveAnnotationsYOLO, saveAnnotationsCOCO } from "@/lib/export";
 import ToolSelector from "@/components/toolSelector";
 import ClassIdSelector from "@/components/classIdSelector";
 import { ArrowLeft, ArrowRight } from "lucide-react";
@@ -123,11 +123,19 @@ export default function AnnotatePage() {
         handleLoadImages(currentIndex)
     }
 
-    async function handleExport() {
+    async function handleExport(format: "yolo" | "coco") {
         try {
-            if (rootDirHandle) {
-                setExportProgress({ completed: 0, total: 0 });
-                await saveAnnotationsYOLO(rootDirHandle, (completed, total, currentFile) => {
+            if (!rootDirHandle) return;
+            setExportProgress({ completed: 0, total: 0 });
+            if (format === "yolo") {
+                await saveAnnotationsYOLO(rootDirHandle, settingsState, (completed, total, currentFile) => {
+                    setExportProgress({ completed, total, currentFile });
+                    if (completed === total) {
+                        setTimeout(() => setExportProgress(null), 800);
+                    }
+                });
+            } else if (format === "coco") {
+                    await saveAnnotationsCOCO(rootDirHandle, db, settingsState, (completed, total, currentFile) => {
                     setExportProgress({ completed, total, currentFile });
                     if (completed === total) {
                         setTimeout(() => setExportProgress(null), 800);
@@ -135,7 +143,7 @@ export default function AnnotatePage() {
                 });
             }
         } catch (error) {
-            console.log('Error in exporting annotation to yolo format, error: ', error)
+            console.log('Error in exporting annotation, error: ', error)
         }
     }
 
